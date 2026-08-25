@@ -157,6 +157,7 @@ bot.start(async (ctx) => {
 });
 
 bot.command('card', async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.from.id;
         if (!players[userId]) players[userId] = { inventory: [], balance: 0, builds: [], lastOpen: 0 };
@@ -220,6 +221,7 @@ if (now - p.lastOpen < 3600000) {
 });
 
 bot.command('inventory', async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.from.id;
         if (!players[userId]) players[userId] = { inventory: [], balance: 0, builds: [] };
@@ -276,6 +278,7 @@ async function showShopCategories(ctx, targetMsg = false) {
 }
 
 bot.command('shop', async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         await showShopCategories(ctx, false);
     } catch (err) {
@@ -284,6 +287,7 @@ bot.command('shop', async (ctx) => {
 });
 
 bot.action('shop_main', async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         await showShopCategories(ctx, true);
         await ctx.answerCbQuery().catch(() => {});
@@ -293,6 +297,7 @@ bot.action('shop_main', async (ctx) => {
 });
 
 bot.action('shop_close', async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try { 
         await ctx.deleteMessage(); 
     } catch(err) { 
@@ -301,6 +306,7 @@ bot.action('shop_close', async (ctx) => {
 });
 
 bot.command('market', async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.from.id;
         const text = "🏪 ОЛХ\n\nУбери категорію товарів, яку хоч позирати:";
@@ -327,6 +333,7 @@ bot.command('market', async (ctx) => {
 const ADMIN_ID = 7186946368; 
 
 bot.command('reset', async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.from.id;
         if (userId !== ADMIN_ID) return ctx.reply("🚫 ниє доступу адміна");
@@ -345,6 +352,7 @@ bot.command('reset', async (ctx) => {
 
 // --- ОБРОБНИКИ СКЛАДУ ---
 bot.action(/invcat_(\d+)_(\w+)/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.match[1], cat = ctx.match[2];
         if (!isOwner(ctx, userId)) return;
@@ -375,6 +383,7 @@ bot.action(/invcat_(\d+)_(\w+)/, async (ctx) => {
 });
 
 bot.action(/market_cat_(\d+)_(\w+)(?:_p(\d+))?/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.match[1];
         const cat = ctx.match[2];
@@ -433,6 +442,7 @@ bot.action(/market_cat_(\d+)_(\w+)(?:_p(\d+))?/, async (ctx) => {
 });
 
 bot.action(/market_back_(\d+)/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.match[1];
         if (!isOwner(ctx, userId)) return;
@@ -455,6 +465,7 @@ bot.action(/market_back_(\d+)/, async (ctx) => {
 });
 
 bot.action(/backinv_(\d+)/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.match[1];
         if (!isOwner(ctx, userId)) return;
@@ -474,6 +485,7 @@ bot.action(/backinv_(\d+)/, async (ctx) => {
 });
 
 bot.action(/shop_cat_(\w+)/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const cat = ctx.match[1];
         let hardwareCat = cat;
@@ -514,6 +526,7 @@ bot.action(/shop_cat_(\w+)/, async (ctx) => {
 });
 
 bot.action(/^buy_(\w+)_(\d+)$/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const cat = ctx.match[1];
         const idx = parseInt(ctx.match[2]);
@@ -545,6 +558,7 @@ bot.action(/^buy_(\w+)_(\d+)$/, async (ctx) => {
 });
 
 bot.action(/actions_(\d+)_(\d+)/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.match[1], idx = ctx.match[2];
         if (!isOwner(ctx, userId)) return;
@@ -572,6 +586,7 @@ bot.action(/actions_(\d+)_(\d+)/, async (ctx) => {
 });
 
 bot.action(/olx_push_(\d+)_(\d+)/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = parseInt(ctx.match[1]), idx = parseInt(ctx.match[2]);
         if (!isOwner(ctx, userId)) return;
@@ -587,6 +602,7 @@ bot.action(/olx_push_(\d+)_(\d+)/, async (ctx) => {
 });
 
 bot.action(/sell_build_init_(\d+)_(\d+)/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const [_, userId, bIdx] = ctx.match;
         if (!isOwner(ctx, userId)) return;
@@ -624,6 +640,7 @@ bot.action(/sell_build_init_(\d+)_(\d+)/, async (ctx) => {
 });
 
 bot.action(/^market_buy_(\d+)$/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const buyerId = ctx.from.id;
         const targetOfferId = parseInt(ctx.match[1]);
@@ -686,6 +703,7 @@ bot.action(/^market_buy_(\d+)$/, async (ctx) => {
 });
 
 bot.action(/sell_(\d+)_(\d+)/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.match[1], idx = ctx.match[2];
         if (!isOwner(ctx, userId)) return;
@@ -705,6 +723,7 @@ bot.action(/sell_(\d+)_(\d+)/, async (ctx) => {
 
 // --- ОБРОБНИКИ ЗБІРКИ ---
 bot.command('build', async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.from.id;
         if (!players[userId]) players[userId] = { inventory: [], balance: 0, builds: [] };
@@ -717,6 +736,7 @@ bot.command('build', async (ctx) => {
 });
 
 bot.action(/newbuild_(\d+)/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         if (!isOwner(ctx, ctx.match[1])) return;
         players[ctx.from.id].awaitingBuildName = true;
@@ -727,6 +747,7 @@ bot.action(/newbuild_(\d+)/, async (ctx) => {
 });
 
 bot.action(/test_build_(\d+)_(\d+)/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         await ctx.answerCbQuery("Запуск тесту...").catch(() => {}); 
         
@@ -862,6 +883,7 @@ bot.action(/test_build_(\d+)_(\d+)/, async (ctx) => {
 });
 
 bot.action(/back_to_build_(\d+)_(\d+)/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = parseInt(ctx.match[1]);
         const buildIdx = parseInt(ctx.match[2]);
@@ -873,6 +895,7 @@ bot.action(/back_to_build_(\d+)_(\d+)/, async (ctx) => {
 });
 
 bot.action(/backlist_(\d+)/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.match[1];
         if (!isOwner(ctx, userId)) return;
@@ -885,6 +908,7 @@ bot.action(/backlist_(\d+)/, async (ctx) => {
 });
 
 bot.action(/open_build_(\d+)_(\d+)/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = parseInt(ctx.match[1]);
         const buildIdx = parseInt(ctx.match[2]);
@@ -897,6 +921,7 @@ bot.action(/open_build_(\d+)_(\d+)/, async (ctx) => {
 });
 
 bot.action(/mod_(\d+)_(\d+)_list/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.match[1];
         const bIdx = parseInt(ctx.match[2]);
@@ -948,6 +973,7 @@ bot.action(/mod_(\d+)_(\d+)_list/, async (ctx) => {
 });
 
 bot.action(/mod_(\d+)_(\d+)_(cpu|gpu|ram|storage|psu|case|motherboard)/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.match[1];
         const bIdx = parseInt(ctx.match[2]);
@@ -993,6 +1019,7 @@ bot.action(/mod_(\d+)_(\d+)_(cpu|gpu|ram|storage|psu|case|motherboard)/, async (
 });
 
 bot.action(/remove_(\d+)_(\d+)_(cpu|gpu|ram|storage|psu|case|motherboard)/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.match[1];
         const bIdx = parseInt(ctx.match[2]);
@@ -1018,6 +1045,7 @@ bot.action(/remove_(\d+)_(\d+)_(cpu|gpu|ram|storage|psu|case|motherboard)/, asyn
 });
 
 bot.action(/set_(\d+)_(\d+)_(\w+)_(\d+)/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const [_, userIdStr, bIdxStr, type, invIdxStr] = ctx.match;
         const userId = parseInt(userIdStr);
@@ -1056,6 +1084,7 @@ bot.action(/set_(\d+)_(\d+)_(\w+)_(\d+)/, async (ctx) => {
 });
 
 bot.action(/unmount_(\d+)_(\d+)_(\w+)/, async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const [_, userId, bIdx, type] = ctx.match;
         if (!isOwner(ctx, userId)) return;
@@ -1075,6 +1104,7 @@ bot.action(/unmount_(\d+)_(\d+)_(\w+)/, async (ctx) => {
 
 // --- ОБРОБКА ВВЕДЕННЯ ТЕКСТУ (ЦІНИ ТА НАЗВИ) ---
 bot.on('text', async (ctx) => {
+    await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.from.id;
         const player = players[userId];

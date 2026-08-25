@@ -1,13 +1,12 @@
-require('dotenv').config(); // На ПК бере дані з .env, а на Render — з налаштувань сайту
+require('dotenv').config();
 
 const { Telegraf } = require('telegraf');
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const fs = require('fs');
-const hardware = require('./data'); 
-const txtsay = require('./txt'); 
+const hardware = require('./data');
+const txtsay = require('./txt');
 const { canInstallComponent, calculatePerformance, calculateSystem } = require('./logic.js');
 
-const bot = new Telegraf('8677059621:AAEtzqSZqlb2XZU9MrO9dt3h36ooKz3yaKA');
 const DATA_FILE = './players.json';
 const MARKET_FILE = './market.json';
 

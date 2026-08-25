@@ -1,6 +1,6 @@
 try { require('dotenv').config(); } catch (e) {}
 
-const { Telegraf } = require('telegraf');
+const { Telegraf, Markup } = require('telegraf');
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const fs = require('fs');
 const hardware = require('./data');

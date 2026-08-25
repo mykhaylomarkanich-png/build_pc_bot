@@ -1,0 +1,72 @@
+[
+  {
+    "sellerId": 7186946368,
+    "offerId": 1779797064160,
+    "price": 300,
+    "item": {
+      "id": "i5_2500k",
+      "model": "процесор Core i5-2500K",
+      "socket": "LGA1155",
+      "price": 700,
+      "image": "https://images.prom.ua/2179060461_w1280_h640_2179060461.jpg",
+      "cores": 4,
+      "threads": 4,
+      "tdp": 95,
+      "power": 35,
+      "modern": false,
+      "type": "cpu"
+    }
+  },
+  {
+    "sellerId": 7186946368,
+    "offerId": 1779797063895,
+    "price": 5600,
+    "item": {
+      "id": "r5_5600",
+      "model": "Ryzen 5 5600",
+      "socket": "AM4",
+      "price": 5500,
+      "image": "https://allegro.stati.pl/AllegroIMG/PRODUCENCI/AMD/100-100000927BOX/AMD-Ryzen-5-5600-procesor-box-01.jpg",
+      "tdp": 65,
+      "power": 75,
+      "type": "cpu"
+    }
+  },
+  {
+    "sellerId": 7186946368,
+    "offerId": 1779796388545,
+    "price": 66,
+    "isPC": false,
+    "item": {
+      "id": "fx_8350",
+      "model": "AMD FX-8350 (Пічка)",
+      "socket": "AM3+",
+      "price": 1800,
+      "image": "https://content2.rozetka.com.ua/goods/images/big/61827967.jpg",
+      "cores": 8,
+      "threads": 8,
+      "frequency": "4.0-4.2 GHz",
+      "tdp": 125,
+      "power": 40,
+      "type": "cpu"
+    }
+  },
+  {
+    "sellerId": 7186946368,
+    "offerId": 1779797069999,
+    "price": 7200,
+    "item": {
+      "id": "i5_12400f",
+      "model": "процесор Core i5-12400F",
+      "socket": "LGA1700",
+      "price": 7200,
+      "image": "https://content1.rozetka.com.ua/goods/images/big/644447085.jpg",
+      "cores": 6,
+      "threads": 12,
+      "tdp": 65,
+      "power": 65,
+      "modern": true,
+      "type": "cpu"
+    }
+  }
+]

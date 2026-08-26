@@ -1,5 +1,7 @@
 try { require('dotenv').config(); } catch (e) {}
 
+const http = require('http'); // Додано стандартний модуль HTTP
+
 const { Telegraf, Markup } = require('telegraf');
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const fs = require('fs');
@@ -9,6 +11,16 @@ const { canInstallComponent, calculatePerformance, calculateSystem } = require('
 
 const DATA_FILE = './players.json';
 const MARKET_FILE = './market.json';
+
+// --- Фейковий веб-сервер для Render ---
+const PORT = process.env.PORT || 3000;
+http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Bot is running!');
+}).listen(PORT, () => {
+  console.log(`Fake web server listening on port ${PORT}`);
+});
+// -------------------------------------
 
 let market = [];
 let players = {};

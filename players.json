@@ -20,11 +20,22 @@
         "price": 250,
         "image": "https://content2.rozetka.com.ua/goods/images/big/407032389.jpg",
         "type": "ram"
+      },
+      {
+        "id": "deepcool_matrexx",
+        "model": "Deepcool Matrexx 55",
+        "price": 2100,
+        "max_gpu_size": 3,
+        "airflow": 0.8,
+        "slots": 7,
+        "material": "Скло/Сталь",
+        "image": "https://f.428.ua/img/2276117/3000/2000/korpus_deepcool_matrexx_55_v3_add-rgb_3f_wh_b_bp~761~1125.jpg",
+        "type": "case"
       }
     ],
     "balance": 11488,
     "builds": [],
-    "lastOpen": 1781469664463
+    "lastOpen": 1787828637953
   },
   "7186946368": {
     "inventory": [
@@ -385,6 +396,471 @@
         "risk": 0.005,
         "image": "https://content.rozetka.com.ua/goods/images/big/113038750.jpg",
         "type": "psu"
+      },
+      {
+        "id": "no_name_300",
+        "model": "NoName 300W",
+        "price": 150,
+        "wattage": 300,
+        "cert": "Немає",
+        "risk": 0.8,
+        "image": "https://wasp.kz/Stat_PC/bp/nn_p4-300w/5_nn-300.jpg",
+        "type": "psu"
+      },
+      {
+        "id": "csgo",
+        "name": "🔫 CS:GO",
+        "os": "win7_Ultimate",
+        "coeff": 0.6,
+        "type": "games"
+      },
+      {
+        "model": "ASUS CUSL2-C (Ретро-Музей)",
+        "socket": "Socket370",
+        "ramType": "SDRAM",
+        "chipset": "Intel 815EP",
+        "slots": 3,
+        "price": 250,
+        "image": "https://upload.wikimedia.org/wikipedia/commons/1/12/ASUS_CUSL2-C_motherboard.jpg",
+        "type": "motherboard"
+      },
+      {
+        "id": "ddr4_8gb",
+        "model": "8GB DDR4 2666MHz",
+        "ramType": "DDR4",
+        "capacity": "8GB",
+        "speed": "2666MHz",
+        "price": 950,
+        "image": "https://content.rozetka.com.ua/goods/images/big/517967826.jpg",
+        "type": "ram"
+      },
+      {
+        "id": "sdram_128",
+        "model": "128MB SDRAM PC133",
+        "ramType": "SDRAM",
+        "capacity": "128MB",
+        "speed": "133MHz",
+        "price": 40,
+        "image": "https://m.media-amazon.com/images/I/41kijdt+R7L._AC_UF1000,1000_QL80_.jpg",
+        "type": "ram"
+      },
+      {
+        "id": "no_name_300",
+        "model": "NoName 300W",
+        "price": 150,
+        "wattage": 300,
+        "cert": "Немає",
+        "risk": 0.8,
+        "image": "https://wasp.kz/Stat_PC/bp/nn_p4-300w/5_nn-300.jpg",
+        "type": "psu"
+      },
+      {
+        "id": "hdd_320",
+        "model": "HDD 320GB",
+        "type": "storage",
+        "capacity": "320GB",
+        "speed": 60,
+        "price": 200,
+        "image": "https://m.media-amazon.com/images/I/71nLDkK-igL._AC_UF894,1000_QL80_.jpg"
+      },
+      {
+        "id": "i7_7700",
+        "model": "Core i7-7700",
+        "socket": "LGA1151",
+        "price": 3800,
+        "image": "https://content1.rozetka.com.ua/goods/images/big/250924810.jpg",
+        "cores": 4,
+        "threads": 8,
+        "frequency": "3.6-4.2 GHz",
+        "tdp": 65,
+        "power": 55,
+        "igpu": "Intel HD Graphics 630",
+        "type": "cpu"
+      },
+      {
+        "id": "gamemax_destroyer",
+        "model": "Gamemax Destroyer TGW (Акваріум)",
+        "price": 2400,
+        "max_gpu_size": 4,
+        "airflow": 1,
+        "slots": 7,
+        "material": "Скло/Сталь",
+        "image": "https://content1.rozetka.com.ua/goods/images/big/349173139.jpg",
+        "type": "case"
+      },
+      {
+        "id": "ddr2_2gb",
+        "model": "2GB DDR2 800MHz",
+        "ramType": "DDR2",
+        "capacity": "2GB",
+        "speed": "800MHz",
+        "price": 100,
+        "image": "https://images.prom.ua/4167239518_w1280_h640_ddr2-2-gb.jpg",
+        "type": "ram"
+      },
+      {
+        "id": "ssd_sata_1tb",
+        "model": "SSD 1TB SATA3",
+        "type": "storage",
+        "capacity": "1TB",
+        "speed": 500,
+        "price": 1800,
+        "image": "https://content.rozetka.com.ua/goods/images/big/395592687.jpg"
+      },
+      {
+        "id": "kcas_500",
+        "model": "Aerocool KCAS 500W",
+        "price": 900,
+        "wattage": 500,
+        "cert": "80+ Bronze",
+        "risk": 0.5,
+        "image": "https://content.rozetka.com.ua/goods/images/big/441711949.jpg",
+        "type": "psu"
+      },
+      {
+        "id": "ssd_patriot_120",
+        "model": "SSD 120GB SATA3",
+        "type": "storage",
+        "capacity": "120GB",
+        "speed": 450,
+        "price": 480,
+        "image": "https://content1.rozetka.com.ua/goods/images/big/451383589.jpg"
+      },
+      {
+        "model": "Gigabyte B650 AORUS ELITE",
+        "socket": "AM5",
+        "ramType": "DDR5",
+        "chipset": "AMD B650",
+        "slots": 4,
+        "price": 8200,
+        "image": "https://content.rozetka.com.ua/goods/images/big/377081306.jpg",
+        "type": "motherboard"
+      },
+      {
+        "id": "ssd_sata_1tb",
+        "model": "SSD 1TB SATA3",
+        "type": "storage",
+        "capacity": "1TB",
+        "speed": 500,
+        "price": 1800,
+        "image": "https://content.rozetka.com.ua/goods/images/big/395592687.jpg"
+      },
+      {
+        "id": "deepcool_matrexx",
+        "model": "Deepcool Matrexx 55",
+        "price": 2100,
+        "max_gpu_size": 3,
+        "airflow": 0.8,
+        "slots": 7,
+        "material": "Скло/Сталь",
+        "image": "https://f.428.ua/img/2276117/3000/2000/korpus_deepcool_matrexx_55_v3_add-rgb_3f_wh_b_bp~761~1125.jpg",
+        "type": "case"
+      },
+      {
+        "id": "pentium_3",
+        "model": "Intel Pentium III",
+        "socket": "Socket370",
+        "price": 90,
+        "image": "https://cdn11.bigcommerce.com/s-p52by1ef7/images/stencil/500x659/products/37266/37522/sl4zm__65985__28195.1549412084.jpg",
+        "cores": 1,
+        "threads": 1,
+        "frequency": "800 MHz",
+        "tdp": 20,
+        "power": 6,
+        "igpu": null,
+        "type": "cpu"
+      },
+      {
+        "id": "ssd_patriot_120",
+        "model": "SSD 120GB SATA3",
+        "type": "storage",
+        "capacity": "120GB",
+        "speed": 450,
+        "price": 480,
+        "image": "https://content1.rozetka.com.ua/goods/images/big/451383589.jpg"
+      },
+      {
+        "id": "voodoo5",
+        "model": "3dfx Voodoo5 5500 (Музейний експонат нахуй)",
+        "price": 14000,
+        "size": 2,
+        "consumption": 30,
+        "power": 12,
+        "vram": "64MB SDRAM",
+        "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9GJXR-5mxOX4incNyr4aCJlKPfSv1tNEnmA&s",
+        "type": "gpu"
+      },
+      {
+        "id": "microwave",
+        "model": "Корпус-мікроволновка",
+        "price": 150,
+        "max_gpu_size": 2,
+        "airflow": 0.2,
+        "slots": 2,
+        "material": "Пластик/Метал",
+        "image": "https://www.ferra.ru/imgs/2022/11/09/14/5661569/8e0982b9268a039c99b1e86a7e7ad8b114f31da1.webp",
+        "type": "case"
+      },
+      {
+        "id": "shoebox",
+        "model": "Коробка Нова Пошта",
+        "price": 20,
+        "max_gpu_size": 1,
+        "airflow": 2,
+        "slots": 1,
+        "material": "Cardboard",
+        "image": "https://horoshop.ua/images/24/38339329097005.jpg",
+        "type": "case"
+      },
+      {
+        "model": "MSI PRO B760-P WIFI",
+        "socket": "LGA1700",
+        "ramType": "DDR4",
+        "chipset": "Intel B760",
+        "slots": 4,
+        "price": 5100,
+        "image": "https://storage-asset.msi.com/global/picture/image/feature/mb/PRO-B760/pro-b760-p-wifi/msi-pro-b790-p-wifi-hero-block02.png",
+        "type": "motherboard"
+      },
+      {
+        "id": "xeon_e5_2620v3",
+        "model": "Xeon E5-2620 v3",
+        "socket": "LGA2011-3",
+        "price": 200,
+        "image": "https://content2.rozetka.com.ua/goods/images/big/229051310.jpg",
+        "cores": 6,
+        "threads": 12,
+        "frequency": "2.4-3.2 GHz",
+        "tdp": 85,
+        "power": 30,
+        "igpu": null,
+        "type": "cpu"
+      },
+      {
+        "id": "ddr5_64gb_corsair",
+        "model": "2x32GB DDR5 Corsair Vengeance 6000MHz",
+        "ramType": "DDR5",
+        "capacity": "64GB",
+        "speed": "6000MHz",
+        "price": 9200,
+        "image": "https://hotline.ua/img/tx/569/5692204775.jpg",
+        "type": "ram"
+      },
+      {
+        "id": "q6600",
+        "model": "Core 2 Quad Q6600",
+        "socket": "LGA775",
+        "price": 300,
+        "image": "https://images.prom.ua/5359207291_w640_h640_5359207291.jpg",
+        "cores": 4,
+        "threads": 4,
+        "frequency": "2.4 GHz",
+        "tdp": 105,
+        "power": 25,
+        "igpu": null,
+        "type": "cpu"
+      },
+      {
+        "id": "pci_wifi6_bluetooth",
+        "name": "🛰 PCI-E Wi-Fi 6 + Bluetooth 5.2 (2400 Мбіт/с)",
+        "type": "netcards",
+        "interface": "PCI-E",
+        "speedMbps": 2400,
+        "price": 1200,
+        "image": "https://content.rozetka.com.ua/goods/images/big/438136469.jpg",
+        "desc": "супер крутий модем"
+      },
+      {
+        "id": "intel_a770",
+        "model": "Intel Arc A770 (фу арк)",
+        "price": 14200,
+        "size": 2,
+        "consumption": 225,
+        "power": 125,
+        "vram": "16GB GDDR6",
+        "image": "https://content.rozetka.com.ua/goods/images/big/378053716.jpg",
+        "type": "gpu"
+      },
+      {
+        "id": "bequiet_700",
+        "model": "be quiet! System Power 700W",
+        "price": 3200,
+        "wattage": 700,
+        "cert": "80+ Gold",
+        "risk": 0.01,
+        "image": "https://content.rozetka.com.ua/goods/images/big/308601387.jpg",
+        "type": "psu"
+      },
+      {
+        "id": "rtx4060ti",
+        "model": "GeForce RTX 4060 Ti",
+        "price": 19500,
+        "size": 2,
+        "consumption": 160,
+        "power": 145,
+        "vram": "16GB GDDR6",
+        "image": "https://content1.rozetka.com.ua/goods/images/big/415203366.png",
+        "type": "gpu"
+      },
+      {
+        "id": "r5_1600",
+        "model": "Ryzen 5 1600",
+        "socket": "AM4",
+        "price": 1500,
+        "image": "https://content1.rozetka.com.ua/goods/images/big/374707393.jpg",
+        "cores": 6,
+        "threads": 12,
+        "frequency": "3.2-3.6 GHz",
+        "tdp": 65,
+        "power": 42,
+        "igpu": null,
+        "type": "cpu",
+        "isBroken": true
+      },
+      {
+        "id": "nzxt_h9",
+        "model": "NZXT H9 Flow White",
+        "price": 10500,
+        "max_gpu_size": 4,
+        "airflow": 1.4,
+        "slots": 7,
+        "material": "Панорамне скло",
+        "image": "https://content2.rozetka.com.ua/goods/images/big/617470933.jpg",
+        "type": "case",
+        "isBroken": false
+      },
+      {
+        "id": "ddr4_8gb",
+        "model": "8GB DDR4 2666MHz",
+        "ramType": "DDR4",
+        "capacity": "8GB",
+        "speed": "2666MHz",
+        "price": 950,
+        "image": "https://content.rozetka.com.ua/goods/images/big/517967826.jpg",
+        "type": "ram",
+        "isBroken": false
+      },
+      {
+        "id": "wood_frame",
+        "model": "деревяний корпус",
+        "price": 2000,
+        "max_gpu_size": 4,
+        "airflow": 3,
+        "slots": 12,
+        "material": "Сосна",
+        "image": "https://cs10.pikabu.ru/post_img/big/2020/09/17/7/1600336848160072279.jpg",
+        "type": "case",
+        "isBroken": false
+      },
+      {
+        "id": "gamemax_destroyer",
+        "model": "Gamemax Destroyer TGW (Акваріум)",
+        "price": 2400,
+        "max_gpu_size": 4,
+        "airflow": 1,
+        "slots": 7,
+        "material": "Скло/Сталь",
+        "image": "https://content1.rozetka.com.ua/goods/images/big/349173139.jpg",
+        "type": "case",
+        "isBroken": false
+      },
+      {
+        "id": "ssd_patriot_120",
+        "model": "SSD 120GB SATA3",
+        "type": "storage",
+        "capacity": "120GB",
+        "speed": 450,
+        "price": 480,
+        "image": "https://content1.rozetka.com.ua/goods/images/big/451383589.jpg",
+        "isBroken": false
+      },
+      {
+        "id": "ddr3_8gb",
+        "model": "2х4GB DDR3 1600MHz",
+        "ramType": "DDR3",
+        "capacity": "8GB",
+        "speed": "1600MHz",
+        "price": 400,
+        "image": "https://ireland.apollo.olxcdn.com/v1/files/mpstyjiqqn3g3-UA/image",
+        "type": "ram",
+        "isBroken": false
+      },
+      {
+        "id": "pci_wifi6_bluetooth",
+        "name": "🛰 PCI-E Wi-Fi 6 + Bluetooth 5.2 (2400 Мбіт/с)",
+        "type": "netcards",
+        "interface": "PCI-E",
+        "speedMbps": 2400,
+        "price": 1200,
+        "image": "https://content.rozetka.com.ua/goods/images/big/438136469.jpg",
+        "desc": "супер крутий модем",
+        "isBroken": true
+      },
+      {
+        "id": "e7500",
+        "model": "Core 2 Duo E7500",
+        "socket": "LGA775",
+        "price": 100,
+        "image": "https://images.prom.ua/2225441842_w640_h640_2225441842.jpg",
+        "cores": 2,
+        "threads": 2,
+        "frequency": "2.93 GHz",
+        "tdp": 65,
+        "power": 15,
+        "igpu": null,
+        "type": "cpu",
+        "isBroken": true,
+        "brokenReason": "тупий майстер погнув ножки кой у плату пхав"
+      },
+      {
+        "id": "ssd_256",
+        "model": "SSD 256GB SATA3 Crucial",
+        "type": "storage",
+        "capacity": "256GB",
+        "speed": 520,
+        "price": 850,
+        "image": "https://content2.rozetka.com.ua/goods/images/big_tile/310010096.jpg",
+        "isBroken": false,
+        "brokenReason": null
+      },
+      {
+        "model": "ASUS ROG Zenith Extreme",
+        "socket": "TR4",
+        "ramType": "DDR4",
+        "chipset": "AMD X399",
+        "slots": 8,
+        "price": 9800,
+        "image": "https://dlcdnimgs.asus.com/websites/global/products/QUxljf1tw7eD3ZT4/img/kv/kv_mobile.jpg",
+        "type": "motherboard",
+        "isBroken": false,
+        "brokenReason": null
+      },
+      {
+        "id": "hdd_160",
+        "model": "HDD 160GB WD Blue",
+        "type": "storage",
+        "capacity": "160GB",
+        "speed": 55,
+        "price": 130,
+        "image": "https://images.prom.ua/7032368980_w1280_h640_7032368980.jpg",
+        "isBroken": true,
+        "brokenReason": "по ньому били кулаком та поламався"
+      },
+      {
+        "id": "q6600",
+        "model": "Core 2 Quad Q6600",
+        "socket": "LGA775",
+        "price": 300,
+        "image": "https://images.prom.ua/5359207291_w640_h640_5359207291.jpg",
+        "cores": 4,
+        "threads": 4,
+        "frequency": "2.4 GHz",
+        "tdp": 105,
+        "power": 25,
+        "igpu": null,
+        "type": "cpu",
+        "isBroken": false,
+        "brokenReason": null
       }
     ],
     "balance": 1e+135,
@@ -456,11 +932,49 @@
             "material": "Метал",
             "image": "https://content1.rozetka.com.ua/goods/images/big/533709659.jpg",
             "type": "case"
+          },
+          "os": {
+            "id": "win_xp_SP3",
+            "model": "Windows XP SP3",
+            "ramReq": 0.25,
+            "hdd_good": 1,
+            "image": "https://upload.wikimedia.org/wikipedia/commons/4/48/Windows_XP_logo.svg"
+          },
+          "netcard": {
+            "id": "pci_lan_1gbit",
+            "name": "🔌 Гігабітна PCI-E мережева карта (1 Гбіт/с)",
+            "type": "netcards",
+            "interface": "PCI-E",
+            "speedMbps": 1000,
+            "price": 450,
+            "image": "https://content.rozetka.com.ua/goods/images/big/588760897.jpg",
+            "desc": "норм модем"
+          }
+        }
+      },
+      {
+        "name": "невидимий",
+        "components": {
+          "cpu": null,
+          "motherboard": null,
+          "gpu": null,
+          "ram": null,
+          "storage": null,
+          "psu": null,
+          "case": null,
+          "netcard": {
+            "id": "pci_lan_1gbit",
+            "name": "🔌 Гігабітна PCI-E мережева карта (1 Гбіт/с)",
+            "type": "netcards",
+            "interface": "PCI-E",
+            "speedMbps": 1000,
+            "price": 450,
+            "desc": "Крута карта через кабель. Стабільний 1 Гбіт/с та мінімальний пінг для онлайн-ігор."
           }
         }
       }
     ],
-    "lastOpen": 1787689896693
+    "lastOpen": 1788339325167
   },
   "8312927310": {
     "inventory": [
@@ -478,5 +992,46 @@
     "balance": 10000,
     "builds": [],
     "lastOpen": 1781469654307
+  },
+  "6043809534": {
+    "inventory": [
+      {
+        "id": "rtx4060ti",
+        "model": "GeForce RTX 4060 Ti",
+        "price": 19500,
+        "size": 2,
+        "consumption": 160,
+        "power": 145,
+        "vram": "16GB GDDR6",
+        "image": "https://content1.rozetka.com.ua/goods/images/big/415203366.png",
+        "type": "gpu"
+      },
+      {
+        "id": "sdram_512",
+        "model": "512MB SDRAM PC133",
+        "ramType": "SDRAM",
+        "capacity": "512MB",
+        "speed": "133MHz",
+        "price": 180,
+        "image": "https://madseller.in.ua/files/products/main-2.800x600w.jpg",
+        "type": "ram"
+      }
+    ],
+    "balance": 0,
+    "builds": [
+      {
+        "name": "Ігри",
+        "components": {
+          "cpu": null,
+          "motherboard": null,
+          "gpu": null,
+          "ram": null,
+          "storage": null,
+          "psu": null,
+          "case": null
+        }
+      }
+    ],
+    "lastOpen": 1787837086561
   }
 }

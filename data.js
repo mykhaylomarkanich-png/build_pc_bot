@@ -245,8 +245,6 @@ module.exports = {
     { id: 'rtx3060_12gb', model: 'GeForce RTX 3060', price: 12500, size: 2, consumption: 170, power: 95, vram: "12GB GDDR6", image: 'https://content.rozetka.com.ua/goods/images/big/74179934.jpg' },
     { id: 'rtx4070_super', model: 'GeForce RTX 4070 Super', price: 29500, size: 3, consumption: 220, power: 195, vram: "12GB GDDR6X", image: 'https://content.rozetka.com.ua/goods/images/big/397589097.jpg' },
     { id: 'rx_6600', model: 'Radeon RX 6600', price: 9500, size: 2, consumption: 132, power: 70, vram: "8GB GDDR6", image: 'https://content2.rozetka.com.ua/goods/images/big/238150635.jpg' },
-    
-    // ⭐ ЩЕ БІЛЬШЕ НОВИХ ВІДЕОКАРТ
     { id: 'voodoo5', model: '3dfx Voodoo5 5500 (Музейний експонат нахуй)', price: 14000, size: 2, consumption: 30, power: 12, vram: "64MB SDRAM", image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9GJXR-5mxOX4incNyr4aCJlKPfSv1tNEnmA&s' },
     { id: 'gtx690', model: 'GeForce GTX 690', price: 3500, size: 3, consumption: 300, power: 110, vram: "4GB GDDR5", image: 'https://www.hardwareluxx.de/images/stories/newsbilder/f_zienczyk/94a.jpg' },
     { id: 'intel_a770', model: 'Intel Arc A770 (фу арк)', price: 14200, size: 2, consumption: 225, power: 125, vram: "16GB GDDR6", image: 'https://content.rozetka.com.ua/goods/images/big/378053716.jpg' },
@@ -255,7 +253,7 @@ module.exports = {
     { id: 'rtx2060_super', model: 'RTX 2060 Super (конкурент 3060)', price: 7800, size: 2, consumption: 175, power: 80, vram: "8GB GDDR6", image: 'https://storage-asset.msi.com/global/picture/product/product_5_20190709152313_5d2440e125ae0.webp' },
     { id: 'rtx4060ti', model: 'GeForce RTX 4060 Ti', price: 19500, size: 2, consumption: 160, power: 145, vram: "16GB GDDR6", image: 'https://content1.rozetka.com.ua/goods/images/big/415203366.png' },
     { id: 'rx7900xtx', model: 'Radeon RX 7900 XTX', price: 46000, size: 3, consumption: 355, power: 230, vram: "24GB GDDR6", image: 'https://content2.rozetka.com.ua/goods/images/big/551411029.jpg' },
-    { id: 'gt440', model: 'GT 440', price: 46000, size: 1, consumption: 355, power: 20, vram: "2GB GDDR5", image: 'https://recorder.com.ua/image/cache/catalog/oc_4928057f1e08ee7796dbecb0b7e07a4d8f0408-1000x600.jpg' }
+    { id: 'gt440', model: 'GT 440', price: 500, size: 1, consumption: 355, power: 20, vram: "2GB GDDR5", image: 'https://recorder.com.ua/image/cache/catalog/oc_4928057f1e08ee7796dbecb0b7e07a4d8f0408-1000x600.jpg' }
   ],
 
   case: [
@@ -266,8 +264,6 @@ module.exports = {
     { id: 'shoebox', model: 'Коробка Нова Пошта', price: 20, max_gpu_size: 1, airflow: 2.0, slots: 1, material: "Cardboard", image: 'https://horoshop.ua/images/24/38339329097005.jpg' },
     { id: 'vinga_cs210b', model: 'Vinga CS210B', price: 650, max_gpu_size: 3, airflow: 0.6, slots: 6, material: "Сталь/Пластик", image: 'https://content2.rozetka.com.ua/goods/images/big/128715561.jpg' },
     { id: 'gamemax_destroyer', model: 'Gamemax Destroyer TGW (Акваріум)', price: 2400, max_gpu_size: 4, airflow: 1.0, slots: 7, material: "Скло/Сталь", image: 'https://content1.rozetka.com.ua/goods/images/big/349173139.jpg' },
-    
-    // ⭐ ЩЕ БІЛЬШЕ НОВИХ КОРПУСІВ
     { id: 'beer_box', model: 'Ящик уд пива', price: 80, max_gpu_size: 3, airflow: 1.8, slots: 4, material: "Пластик", image: 'https://ua.all.biz/img/ua/catalog/488203.jpeg' },
     { id: 'cardboard_bench', model: 'із картону', price: 50, max_gpu_size: 4, airflow: 2.5, slots: 9, material: "Папір", image: 'https://itc.ua/wp-content/uploads/2025/08/XZc5jjS9Br8qDi7ZPpbfti-970-80.jpg-835x557.jpg' },
     { id: 'retro_turbo', model: 'пожовтівший корпус з кнопков турбо', price: 400, max_gpu_size: 2, airflow: 0.3, slots: 4, material: "Товста сталь", image: 'https://i.etsystatic.com/7389273/r/il/dacd48/7063315660/il_fullxfull.7063315660_5ck5.jpg' },
@@ -284,9 +280,6 @@ module.exports = {
     { id: 'fsp_450', model: 'FSP QD450 450W', price: 1100, wattage: 450, cert: "80+ Standart", risk: 0.25, image: 'https://content.rozetka.com.ua/goods/images/big/114025709.jpg' },
     { id: 'deepcool_pf600', model: 'Deepcool PF600 600W', price: 2100, wattage: 600, cert: "80 Plus", risk: 0.1, image: 'https://content1.rozetka.com.ua/goods/images/big/300738286.jpg' },
     { id: 'chieftec_proton_750', model: 'Chieftec Proton 750W', price: 3400, wattage: 750, cert: "80+ Bronze", risk: 0.04, image: 'https://content2.rozetka.com.ua/goods/images/big/11274834.jpg' },
-    
-    // ⭐ ЩЕ БІЛЬШЕ БЛОКІВ ЖИВЛЕННЯ
-    
     { id: 'seasonic_850', model: 'Seasonic Focus GX-850', price: 10858, wattage: 850, cert: "80+ Gold", risk: 0.005, image: 'https://content.rozetka.com.ua/goods/images/big/113038750.jpg' },
     { id: 'kcas_600', model: 'Aerocool KCAS 600W (быбых)', price: 1100, wattage: 600, cert: "80+ Бронза", risk: 0.6, image: 'https://aerocool.io/wp-content/uploads/2019/06/kcas-600-gallery-1.png' },
     { id: 'corsair_rm850x', model: 'Corsair RM850x White', price: 6200, wattage: 850, cert: "80+ Gold", risk: 0.002, image: 'https://content2.rozetka.com.ua/goods/images/big/78580126.jpg' },
@@ -305,9 +298,7 @@ module.exports = {
     { model: "MSI A320M-A PRO", socket: "AM4", ramType: "DDR4", chipset: "AMD A320", slots: 2, price: 1950, image: 'https://content1.rozetka.com.ua/goods/images/big/17624885.png' },
     { model: "Asus ROG STRIX B550-F", socket: "AM4", ramType: "DDR4", chipset: "AMD B550", slots: 4, price: 5800, image: 'https://content.rozetka.com.ua/goods/images/big/230691483.jpg' },
     { model: "MSI PRO B760-P WIFI", socket: "LGA1700", ramType: "DDR4", chipset: "Intel B760", slots: 4, price: 5100, image: 'https://storage-asset.msi.com/global/picture/image/feature/mb/PRO-B760/pro-b760-p-wifi/msi-pro-b790-p-wifi-hero-block02.png' },
-    { model: "ASUS CUSL2-C (Ретро-Музей)", socket: "Socket370", ramType: "SDRAM", chipset: "Intel 815EP", slots: 3, price: 250, image: 'https://upload.wikimedia.org/wikipedia/commons/1/12/ASUS_CUSL2-C_motherboard.jpg' },
-    
-    // ⭐ ЩЕ БІЛЬШЕ МАТЕРИНСЬКИХ ПЛАТ
+    { model: "ASUS CUSL2-C (Ретро-Музей)", socket: "Socket370", ramType: "SDRAM", chipset: "Intel 815EP", slots: 3, price: 250, image: 'https://i.ebayimg.com/images/g/XsIAAOSwLH5nTZsV/s-l400.jpg' },
     { model: "VIA Apollo Pro133", socket: "Socket370", ramType: "SDRAM", chipset: "VIA 694X", slots: 3, price: 180, image: 'https://theretroweb.com/media/cache/show_thumb/motherboard/image/pro133-ace-r2-63c5b4e2afc15807739362.jpg' },
     { model: "MSI H110M PRO-D", socket: "LGA1151", ramType: "DDR4", chipset: "Intel H110", slots: 2, price: 1350, image: 'https://content1.rozetka.com.ua/goods/images/big/48805202.jpg' },
     { model: "ASRock X99 Extreme4", socket: "LGA2011-3", ramType: "DDR4", chipset: "Intel X99", slots: 8, price: 4200, image: 'https://content1.rozetka.com.ua/goods/images/big/46543109.jpg' },
@@ -327,8 +318,6 @@ module.exports = {
     { id: 'ddr5_16gb', model: "16GB DDR5 4800MHz", ramType: "DDR5", capacity: "16GB", speed: "4800MHz", price: 2400, image: 'https://files.foxtrot.com.ua/PhotoNew/img_0_22336_3514_0_1_b6d8yL.jpg' },
     { id: 'sdram_128', model: "128MB SDRAM PC133", ramType: "SDRAM", capacity: "128MB", speed: "133MHz", price: 40, image: 'https://m.media-amazon.com/images/I/41kijdt+R7L._AC_UF1000,1000_QL80_.jpg' },
     { id: 'sdram_512', model: "512MB SDRAM PC133", ramType: "SDRAM", capacity: "512MB", speed: "133MHz", price: 180, image: 'https://madseller.in.ua/files/products/main-2.800x600w.jpg' },
-    
-    // ⭐ ЩЕ БІЛЬШЕ ОПЕРАТИВКИ
     { id: 'ddr2_1gb', model: "1GB DDR2 667MHz", ramType: "DDR2", capacity: "1GB", speed: "667MHz", price: 40, image: 'https://images.prom.ua/15637308_w640_h320_modul-pamyati-ddr2.jpg' },
     { id: 'ddr3_2gb', model: "2GB DDR3 1333MHz", ramType: "DDR3", capacity: "2GB", speed: "1333MHz", price: 110, image: 'https://images.prom.ua/2070295618_2gb-ddr3-1333mhz.jpg' },
     { id: 'ddr4_32gb_hyperx', model: "2x16GB DDR4 Kingston Fury 3600MHz", ramType: "DDR4", capacity: "32GB", speed: "3600MHz", price: 3900, image: 'https://content2.rozetka.com.ua/goods/images/big/368008180.jpg' },
@@ -344,13 +333,120 @@ module.exports = {
     { id: 'nvme_kingston_500', model: 'SSD 500GB NVMe M.2', type: "NVMe M.2", capacity: "500GB", speed: 3500, price: 1650, image: 'https://content2.rozetka.com.ua/goods/images/big/285504238.jpg' },
     { id: 'ide_ide_40', model: 'HDD 40GB IDE Maxtor', type: "HDD", capacity: "40GB", speed: 30, price: 50, image: 'https://images.prom.ua/312546012_w640_h640_312546012.jpg' },
     { id: 'floppy_disk', model: 'Дискета 3.5" (1.44 MB)', type: "Floppy", capacity: "1.44MB", speed: 1, price: 10, image: 'https://upload.wikimedia.org/wikipedia/commons/a/a7/3.5-inch_HD_floppy_disk.jpg' },
-    
-    // ⭐ ЩЕ БІЛЬШЕ НАКОПИЧУВАЧІВ
     { id: 'hdd_80', model: 'HDD 80GB Seagate Barracuda', type: "HDD", capacity: "80GB", speed: 45, price: 80, image: 'https://content1.rozetka.com.ua/goods/images/big/466995205.jpg' },
     { id: 'hdd_160', model: 'HDD 160GB WD Blue', type: "HDD", capacity: "160GB", speed: 55, price: 130, image: 'https://images.prom.ua/7032368980_w1280_h640_7032368980.jpg' },
     { id: 'ssd_256', model: 'SSD 256GB SATA3 Crucial', type: "SSD SATA", capacity: "256GB", speed: 520, price: 850, image: 'https://content2.rozetka.com.ua/goods/images/big_tile/310010096.jpg' },
     { id: 'nvme_4tb', model: 'SSD 4TB NVMe Samsung 990 Pro', type: "NVMe M.2", capacity: "4TB", speed: 7450, price: 12400, image: 'https://content.rozetka.com.ua/goods/images/big/415679374.jpg' },
     { id: 'nvme_256gb', model: 'SSD 256GB NVMe Samsung', type: "NVMe M.2", capacity: "256GB", speed: 3500, price: 3600, image: 'https://content.rozetka.com.ua/goods/images/big/669391366.jpg' },
     { id: 'ssd_64gb_transcend', model: 'SSD ssd370 transcend', type: "SSD SATA", capacity: "64GB", speed: 500, price: 1000, image: 'https://content1.rozetka.com.ua/goods/images/big/46243534.jpg' }
-  ]
+  ],
+  os: [
+  {
+    id: 'win11_ltcs',
+    model: 'Windows 11 iot Enterprise LTSC',
+    ramReq: 1,
+    hdd_good: 0,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/e/e6/Windows_11_logo.svg'
+  },
+  {
+    id: 'win11_pro',
+    model: 'Windows 11 Pro',
+    ramReq: 4,
+    hdd_good: 0,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/e/e6/Windows_11_logo.svg'
+  },
+  {
+    id: 'win10_pro',
+    model: 'Windows 10 Pro',
+    ramReq: 2,
+    hdd_good: 0,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/0/05/Windows_10_Logo.svg'
+  },
+  {
+    id: 'win7_Ultimate',
+    model: 'Windows 7 Ultimate',
+    ramReq: 1,
+    hdd_good: 1, // канон — hdd це норм
+    image: 'https://upload.wikimedia.org/wikipedia/commons/d/d7/Windows_7_logo.svg'
+  },
+  {
+    id: 'win_xp_SP3',
+    model: 'Windows XP SP3',
+    ramReq: 0.25,
+    hdd_good: 1,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/4/48/Windows_XP_logo.svg'
+  },
+  {
+    id: 'ubuntu',
+    model: 'Ubuntu Linux',
+    ramReq: 2,
+    hdd_good: 0,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Ubuntu_logo.svg'
+  },
+  {
+    id: 'ms-dos',
+    model: 'MS-DOS 6.22',
+    ramReq: 0.004,
+    hdd_good: 1,
+    image: 'https://upload.wikimedia.org/wikipedia/commons/3/36/MS-DOS_logo.svg'
+  }
+],
+  games: [
+    // --- MS-DOS ---
+    { id: 'doom1', name: '🕹 DOOM 1 (1993)', os: 'ms-dos', coeff: 1.5 },
+    { id: 'pop', name: '🏎 Prince of Persia', os: 'ms-dos', coeff: 2.0 },
+    { id: 'wolf3d', name: '🐺 Wolfenstein 3D', os: 'ms-dos', coeff: 2.2 },
+    { id: 'tetris', name: '📐 Tetris DOS', os: 'ms-dos', fixedFps: 60 },
+
+    // --- Windows XP ---
+    { id: 'gta_sa', name: '🏎 GTA San Andreas', os: 'win_xp_SP3', coeff: 0.8 },
+    { id: 'cs16', name: '🔪 CS 1.6', os: 'win_xp_SP3', coeff: 1.8, fixedFps: 100 },
+    { id: 'nfs_mw', name: '🚗 NFS Most Wanted', os: 'win_xp_SP3', coeff: 0.6 },
+    { id: 'stalker', name: '☢️ S.T.A.L.K.E.R. ТЧ', os: 'win_xp_SP3', coeff: 0.4 },
+
+    // --- Windows 7 ---
+    { id: 'csgo', name: '🔫 CS:GO', os: 'win7_Ultimate', coeff: 0.6 },
+    { id: 'gta4', name: '🚗 GTA 4', os: 'win7_Ultimate', coeff: 0.35 },
+    { id: 'skyrim', name: '⚔️ Skyrim', os: 'win7_Ultimate', coeff: 0.45 },
+    { id: 'crysis2', name: '💥 Crysis 2', os: 'win7_Ultimate', coeff: 0.3 },
+
+    // --- Ubuntu ---
+    { id: 'mc_java', name: '⛏ Minecraft (Java)', os: 'ubuntu', coeff: 0.7 },
+    { id: 'supertux', name: '🐧 SuperTuxKart', os: 'ubuntu', coeff: 1.2 },
+    { id: 'dota2', name: '⚔️ Dota 2 (Vulkan)', os: 'ubuntu', coeff: 0.4 },
+    { id: 'cs2_proton', name: '🔫 CS 2 (Proton)', os: 'ubuntu', coeff: 0.25 }
+  ],
+  netcards: [
+    {
+        id: 'usb_wifi_cheap',
+        name: '📶 USB Wi-Fi свисток (100 Мбіт/с)',
+        type: 'netcard',
+        interface: 'USB',
+        speedMbps: 100,
+        price: 150,
+        risk: 0.1, // Інколи відпадає або лагає
+        image: 'https://content.rozetka.com.ua/goods/images/big_tile/561843879.jpg',
+        desc: 'інтернет обы быв'
+    },
+    {
+        id: 'pci_lan_1gbit',
+        name: '🔌 Гігабітна PCI-E мережева карта (1 Гбіт/с)',
+        type: 'netcard',
+        interface: 'PCI-E',
+        speedMbps: 1000,
+        price: 450,
+        image: 'https://content.rozetka.com.ua/goods/images/big/588760897.jpg',
+        desc: 'норм модем'
+    },
+    {
+        id: 'pci_wifi6_bluetooth',
+        name: '🛰 PCI-E Wi-Fi 6 + Bluetooth 5.2 (2400 Мбіт/с)',
+        type: 'netcard',
+        interface: 'PCI-E',
+        speedMbps: 2400,
+        price: 1200,
+        image: 'https://content.rozetka.com.ua/goods/images/big/438136469.jpg',
+        desc: 'супер крутий модем'
+    }
+]
 }

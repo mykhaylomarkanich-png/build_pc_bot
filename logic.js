@@ -20,13 +20,7 @@ function canInstallComponent(build, newItem) {
 
     return { can: true };
 }
-function getPreset(gpuScore, targetGame) {
-    if (gpuScore <= 50) return "720p Низькі";
-    if (gpuScore <= 150) return "720p Середні";
-    if (gpuScore <= 350) return "1080p Ультра";
-    if (gpuScore <= 600) return "2K Високі";
-    return "4K Ультра";
-}
+
 // Допоміжна функція для визначення налаштувань графіки
 function getPreset(gpuScore) {
     if (gpuScore <= 50) return "1080p Низькі";
@@ -36,16 +30,38 @@ function getPreset(gpuScore) {
     return "4K Ультра";
 }
 
+// Парсер пам'яті у байти
+function parseRamBytes(capacityStr) {
+    if (!capacityStr) return 0;
+    const str = String(capacityStr).trim().toUpperCase();
+    
+    let multiplier = 1;
+    let targetStr = str;
+    if (str.includes('X')) {
+        const parts = str.split('X');
+        multiplier = parseFloat(parts[0]) || 1;
+        targetStr = parts[1] || str;
+    }
+    
+    const num = parseFloat(targetStr) || 0;
+    
+    if (targetStr.includes('GB') || targetStr.includes('ГБ')) {
+        return num * multiplier * 1_000_000_000;
+    } else if (targetStr.includes('MB') || targetStr.includes('МБ')) {
+        return num * multiplier * 1_000_000;
+    }
+    
+    return num * multiplier * 1_000_000_000;
+}
+
 function calculatePerformance(build) {
     if (!build) {
         return { error: "❌ Комп'ютер порожній! Спочатку зберіть ПК." };
     }
 
-    // Дістаємо деталі з build.components або самого build
     const comp = build.components || build;
     const { cpu, gpu, ram, motherboard, storage, psu } = comp;
 
-    // 1. Перевірка наявності компонентів
     const hasGpu = !!gpu || !!(cpu && cpu.igpu);
 
     if (!cpu || !hasGpu || !ram || !motherboard || !storage || !psu) {
@@ -54,29 +70,25 @@ function calculatePerformance(build) {
         };
     }
 
-    // 2. Перевірка сумісності сокета
     if (cpu.socket !== motherboard.socket) {
         return { 
             error: `❌ Несумісність! Сокет процесора (${cpu.socket}) не підходить до материнської плати (${motherboard.socket}).` 
         };
     }
 
-    // 3. Перевірка сумісності RAM
     if (ram.ramType && motherboard.ramType && ram.ramType !== motherboard.ramType) {
         return { 
             error: `❌ Несумісність! Тип ОЗП (${ram.ramType}) не підтримується материнською платою (${motherboard.ramType}).` 
         };
     }
 
-    // 4. Розрахунок споживання енергії
     const cpuPowerDraw = cpu.power || cpu.consumption || 65;
     
-    // Споживання відеокарти (дискретна або iGPU)
     let gpuPowerDraw = 0;
     if (gpu) {
         gpuPowerDraw = gpu.power || gpu.consumption || 120;
     } else if (cpu && cpu.igpu) {
-        gpuPowerDraw = 15; // Базове споживання для вбудованого відеоядра
+        gpuPowerDraw = 15;
     }
 
     const totalPowerDraw = cpuPowerDraw + gpuPowerDraw + 50;
@@ -88,34 +100,28 @@ function calculatePerformance(build) {
         };
     }
 
-    // 5. Розрахунок FPS / Балів
     const cpuScore = (cpu.cores || 1) * 100;
 
     let gpuScore = 0;
     let gpuModelName = "Немає";
 
     if (gpu) {
-        // Для дискретної відеокарти
         const vramGb = gpu.vram ? parseInt(gpu.vram) : 1;
         const gpuPowerVal = gpu.power || gpu.consumption || 50;
         gpuScore = gpuPowerVal * (vramGb * 0.8);
         gpuModelName = gpu.model;
     } else if (cpu && cpu.igpu) {
-        // Для вбудованої графіки фіксуємо низький бал
         gpuScore = 45; 
         gpuModelName = `Вбудована (${cpu.igpu})`;
     }
 
-    // Рахуємо бали RAM так, щоб 32ГБ не додавали 1600 балів
     const ramGb = ram.capacity ? parseInt(ram.capacity) : 4;
     const ramScore = ramGb * 5; 
 
     const storageScore = storage.speed || 100;
 
-    // Загальний бал системи
     const totalScore = Math.round((gpuScore * 0.65) + (cpuScore * 0.20) + (ramScore * 0.10) + (storageScore * 0.05));
 
-    // Обмеження FPS відеокартою (якщо GPU/iGPU слабкі, ФПС впирається в графіку)
     const maxGpuFps = gpuScore * 1.2;
 
     const rawCs2 = totalScore * 0.5;
@@ -123,7 +129,6 @@ function calculatePerformance(build) {
     const rawGta5 = totalScore * 0.3;
     const rawCyberpunk = totalScore * 0.1;
 
-    // Отримуємо пресет графіки залежно від потужності відеокарти
     const gamePreset = getPreset(gpuScore);
 
     return {
@@ -156,8 +161,10 @@ function calculateSystem(build) {
     return calculatePerformance(build);
 }
 
+// Усі функції в експорті (parseRamBytes додано сюди)
 module.exports = { 
     canInstallComponent, 
     calculatePerformance, 
-    calculateSystem 
+    calculateSystem,
+    parseRamBytes 
 };

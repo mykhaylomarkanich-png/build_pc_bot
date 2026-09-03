@@ -1,13 +1,15 @@
-try { require('dotenv').config(); } catch (e) {}
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
-const http = require('http'); // Додано стандартний модуль HTTP
+const http = require('http');
 
 const { Telegraf, Markup } = require('telegraf');
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const fs = require('fs');
 const hardware = require('./data');
-const txtsay = require('./txt');
-const { canInstallComponent, calculatePerformance, calculateSystem } = require('./logic.js');
+const cdText = require('./cdText.js');
+const txt = require('./txt.js');
+const { canInstallComponent, calculatePerformance, calculateSystem, parseRamBytes} = require('./logic.js');
 
 const DATA_FILE = './players.json';
 const MARKET_FILE = './market.json';
@@ -18,7 +20,7 @@ http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end('Bot is running!');
 }).listen(PORT, () => {
-  console.log(`Fake web server listening on port ${PORT}`);
+  console.log(`Фейковий веб-сервер запущений ${PORT}`);
 });
 // -------------------------------------
 
@@ -106,7 +108,76 @@ async function smartEdit(ctx, text, keyboard) {
         await handleError(ctx, e, "smartEdit");
     }
 }
+// Перевірка та автоматичне додавання шансу ремонту до застарілих предметів у гравців
+function validateAndFixData() {
+    let modified = false;
 
+    // Створюємо словник усіх деталей з data.js
+    const baseHardwareMap = {};
+    Object.keys(hardware).forEach(cat => {
+        if (Array.isArray(hardware[cat])) {
+            hardware[cat].forEach(baseItem => {
+                const key = baseItem.id || baseItem.model || baseItem.name;
+                if (key) {
+                    baseHardwareMap[key] = { ...baseItem, type: cat };
+                }
+            });
+        }
+    });
+
+    const syncItem = (targetItem) => {
+        const key = targetItem.id || targetItem.model || targetItem.name;
+        const freshData = baseHardwareMap[key];
+
+        if (freshData) {
+            // Підтягуємо нові атрибути (включаючи repairSuccessChance)
+            Object.keys(freshData).forEach(attr => {
+                if (targetItem[attr] === undefined) {
+                    targetItem[attr] = freshData[attr];
+                    modified = true;
+                }
+            });
+        }
+
+        if (targetItem.isBroken === undefined) {
+            targetItem.isBroken = false;
+            modified = true;
+        }
+        
+        // Дефолтний шанс ремонту (50%), якщо в data.js не вказано інше
+        if (targetItem.repairSuccessChance === undefined) {
+            targetItem.repairSuccessChance = 0.5;
+            modified = true;
+        }
+    };
+
+    // Оновлюємо склад гравців
+    Object.values(players).forEach(p => {
+        if (Array.isArray(p.inventory)) p.inventory.forEach(syncItem);
+    });
+
+    // Оновлюємо ринок
+    if (Array.isArray(market)) {
+        market.forEach(offer => {
+            if (offer.item && !offer.isPC) syncItem(offer.item);
+        });
+    }
+
+    if (modified) {
+        console.log("🛠 Базу даних та шанси ремонту для всіх деталей успішно оновлено!");
+        saveToFile();
+    }
+}
+function getRandomBrokenReason(category) {
+    const catReasons = txt.categoryBrokenReasons[category] || [];
+    
+    // 60% шанс взяти специфічну причину під категорію, 40% — загальну
+    if (catReasons.length > 0 && Math.random() < 0.60) {
+        return catReasons[Math.floor(Math.random() * catReasons.length)];
+    }
+    
+    return txt.generalBrokenReasons[Math.floor(Math.random() * txt.generalBrokenReasons.length)];
+}
 function isOwner(ctx, targetId) {
     try {
         if (ctx.from.id !== parseInt(targetId)) {
@@ -129,18 +200,33 @@ async function showBuildMenu(ctx, userId, buildIdx) {
         if (!build) return;
 
         if (!build.components) {
-            build.components = { cpu: null, motherboard: null, gpu: null, ram: null, storage: null, psu: null, case: null };
+            build.components = { cpu: null, motherboard: null, gpu: null, ram: null, storage: null, psu: null, case: null, os: null };
         }
 
         const comp = build.components;
+
+        
+        let gpuText = '❌';
+        if (comp.gpu) {
+            gpuText = comp.gpu.model;
+        } else if (comp.cpu && comp.cpu.igpu) {
+            gpuText = `${comp.cpu.igpu}`;
+        }
+        let netText = '❌';
+        if (comp.netcard) {
+            netText = comp.netcard.model || comp.netcard.name;
+        }
+
         let text = `🖥 *Комп: ${build.name}*\n\n`;
         text += `♟ Проц: ${comp.cpu?.model || '❌'}\n`;
         text += `📟 Мамка: ${comp.motherboard?.model || '❌'}\n`;
-        text += `🖼 Відюха: ${comp.gpu?.model || '❌'}\n`;
+        text += `🖼 Відюха: ${gpuText}\n`;
         text += `📟 ОЗУ: ${comp.ram?.model || '❌'}\n`;
         text += `🗃 Диск: ${comp.storage?.model || '❌'}\n`;
         text += `🔌 БЖ: ${comp.psu?.model || '❌'}\n`;
+        text += `🌐 Інтернет: ${netText}\n`;
         text += `📦 Корпус: ${comp.case?.model || '❌'}\n`;
+        text += `💿 ОС: ${comp.os?.model || '❌'}\n`;
 
         const buildImg = comp.case?.image || 'https://habrastorage.org/getpro/habr/upload_files/78b/154/cc1/78b154cc12ad639fa423b1c1c8dcf1d5.jpg';
 
@@ -175,29 +261,46 @@ bot.command('card', async (ctx) => {
         if (!players[userId]) players[userId] = { inventory: [], balance: 0, builds: [], lastOpen: 0 };
         const p = players[userId];
         
-       const now = Date.now();
-if (now - p.lastOpen < 3600000) {
-    const timeLeft = 3600000 - (now - p.lastOpen);
-    const minutesLeft = Math.floor(timeLeft / 60000);
-    
-    // Вибираємо рандомну фразу з масиву txtsay
-    const randomPhrase = txtsay[Math.floor(Math.random() * txtsay.length)];
-    
-    return ctx.reply(`Почекай щи ${minutesLeft} минут! ${randomPhrase}`);
-}
+        const now = Date.now();
+        if (now - p.lastOpen < 3600000) {
+            const timeLeft = 3600000 - (now - p.lastOpen);
+            const minutesLeft = Math.floor(timeLeft / 60000);
+            
+            const randomPhrase = cdText[Math.floor(Math.random() * cdText.length)];
+            
+            return ctx.reply(`Почекай щи ${minutesLeft} минут! ${randomPhrase}`);
+        }
 
-        const cats = Object.keys(hardware);
+        const allowedCats = ['cpu', 'gpu', 'ram', 'storage', 'psu', 'case', 'motherboard', 'netcards'];
+        const cats = Object.keys(hardware).filter(cat => allowedCats.includes(cat) && hardware[cat].length > 0);
+        
         const randomCat = cats[Math.floor(Math.random() * cats.length)];
         const item = hardware[randomCat][Math.floor(Math.random() * hardware[randomCat].length)];
 
+        // 20% шанс, що БУДЬ-ЯКА деталь буде зламаною
+        const isBroken = Math.random() < 0.20;
+        const brokenReason = isBroken ? getRandomBrokenReason(randomCat) : null;
+
         p.lastOpen = now;
-        p.inventory.push({ ...item, type: randomCat });
+        p.inventory.push({ 
+            ...item, 
+            type: randomCat, 
+            isBroken: isBroken,
+            brokenReason: brokenReason // Записуємо причину і в об'єкт інвентарю
+        });
         saveToFile();
 
-        let description = `📦 Упало: **${item.model}**\n`;
+        const itemName = item.model || item.name || 'хз шо ісе';
+
+        let description = `📦 Упало: **${itemName}**\n`;
+        if (isBroken) {
+            description += `⚠️ **Состояніє: ❌ Зламано**\n`;
+            description += `💬 *Причина:* ${brokenReason}\n\n`;
+        } else {
+            description += `✨ **Состояніє: ✅ Робить**\n\n`;
+        }
         description += `💰 Ціна: **${item.price}** грн\n\n`;
         description += `⚙ **Характеристики:**\n`;
-
         if (randomCat === 'cpu') {
             description += `🧵 Ядра тай потоки: **${item.cores} ядра ${item.threads} потоки**\n⚡ Частота: **${item.frequency}**\n🔌 Сокет: **${item.socket}**`;
         } else if (randomCat === 'gpu') {
@@ -212,6 +315,9 @@ if (now - p.lastOpen < 3600000) {
             description += `📟 Память: **${item.capacity}**\n⚡ Скорість: **${item.speed}**мб/сек\n📈 Тип: **${item.ramType}**`;
         } else if (randomCat === 'storage') {
             description += `💿 Тип: **${item.type}**\n📦 Об'єм: **${item.capacity}**\n🚀 Скорість: **${item.speed}**мб/сек`;
+        } else if (randomCat === 'netcard' || randomCat === 'netcards') {
+            const netSpeed = item.speedMbps >= 1000 ? `${(item.speedMbps / 1000).toFixed(1)} Гб/с` : `${item.speedMbps} Мб/с`;
+            description += `🌐 Інтерфейс: **${item.interface}**\n🚀 Скорість: **${netSpeed}**\n📝 **${item.desc || 'Мережевий адаптер'}**`;
         }
 
         const kb = Markup.inlineKeyboard([
@@ -240,7 +346,7 @@ bot.command('inventory', async (ctx) => {
         const text = `🛠 *Твій склад*\nБаланс: ${players[userId].balance} грн`;
         const keyboard = Markup.inlineKeyboard([
             [Markup.button.callback('♟ Процесори', `invcat_${userId}_cpu`), Markup.button.callback('🖼 Відюхи', `invcat_${userId}_gpu`)],
-            [Markup.button.callback('📟 ОЗУ', `invcat_${userId}_ram`), Markup.button.callback('🗃 Диски', `invcat_${userId}_storage`)],
+            [Markup.button.callback('📟 ОЗУ', `invcat_${userId}_ram`), Markup.button.callback('🗃 Диски', `invcat_${userId}_storage`), Markup.button.callback('🌐 Мережеві карти', `invcat_${userId}_netcard`)],
             [Markup.button.callback('🔌 Блоки', `invcat_${userId}_psu`), Markup.button.callback('📟 Мамки', `invcat_${userId}_motherboard`), Markup.button.callback('📦 Корпуси', `invcat_${userId}_case`)],
             [Markup.button.callback('📜 Усьо', `invcat_${userId}_all`)]
         ]);
@@ -259,14 +365,9 @@ async function showShopCategories(ctx, targetMsg = false) {
     try {
         let msg = `🛒 *Магазин комплектуючих*\n\nТуй усьо новоє. Убери категорію, яку хоч поубзирати:`;
         const kb = Markup.inlineKeyboard([
-            [Markup.button.callback('🔳 Процесори', `shop_cat_cpu`)],
-            [Markup.button.callback('🖼 Відеокарти', `shop_cat_gpu`)],
-            [Markup.button.callback('📟 Оперативна пам\'ять (ОЗУ)', `shop_cat_ram`)],
-            [Markup.button.callback('💾 Диски', `shop_cat_storage`)],
-            [Markup.button.callback('🔌 Блоки живлення', `shop_cat_psu`)],
-            [Markup.button.callback('📦 Корпуси', `shop_cat_case`)],
-            [Markup.button.callback('🎛 Мамки', `shop_cat_motherboard`)],
-            [Markup.button.callback('❌ Закрити магазин', 'shop_close')]
+            [Markup.button.callback('🔳 Процесори', `shop_cat_cpu`), Markup.button.callback('🖼 Відеокарти', `shop_cat_gpu`), Markup.button.callback('📟 Оперативна пам\'ять', `shop_cat_ram`)],       
+            [Markup.button.callback('💾 Диски', `shop_cat_storage`), Markup.button.callback('🔌 Блоки живлення', `shop_cat_psu`), Markup.button.callback('📦 Корпуси', `shop_cat_case`), Markup.button.callback('🎛 Мамки', `shop_cat_motherboard`)],
+            [Markup.button.callback('🌐 Мережеві карти', `shop_cat_netcard`)]
         ]);
 
         const photoUrl = 'https://images.unian.net/photos/2023_08/thumb_files/400_0_1692959536-3393.png';
@@ -321,14 +422,14 @@ bot.command('market', async (ctx) => {
     await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.from.id;
-        const text = "🏪 ОЛХ\n\nУбери категорію товарів, яку хоч позирати:";
+        const text = "🏪 **ОЛХ**\n\nУбери категорію товарів, яку хоч позирати:";
         
         const keyboard = Markup.inlineKeyboard([
             [Markup.button.callback('🖥 Готові ПК', `market_cat_${userId}_pc`)],
             [Markup.button.callback('♟ Процесори', `market_cat_${userId}_cpu`), Markup.button.callback('🖼 Відеокарти', `market_cat_${userId}_gpu`)],
             [Markup.button.callback('📟 Мамки', `market_cat_${userId}_motherboard`), Markup.button.callback('📟 ОЗУ', `market_cat_${userId}_ram`)],
             [Markup.button.callback('🗃 Диски', `market_cat_${userId}_storage`), Markup.button.callback('🔌 Блоки пітанія', `market_cat_${userId}_psu`)],
-            [Markup.button.callback('📦 Корпуси', `market_cat_${userId}_case`)],
+            [Markup.button.callback('📦 Корпуси', `market_cat_${userId}_case`), Markup.button.callback('🌐 Мережеві карти', `market_cat_${userId}_netcard`)],
             [Markup.button.callback('📜 Указати Усьо', `market_cat_${userId}_all`)]
         ]);
 
@@ -341,7 +442,6 @@ bot.command('market', async (ctx) => {
         await handleError(ctx, err, "market");
     }
 });
-
 const ADMIN_ID = 7186946368; 
 
 bot.command('reset', async (ctx) => {
@@ -353,7 +453,7 @@ bot.command('reset', async (ctx) => {
         if (players[userId]) {
             players[userId].lastOpen = Date.now() - (2 * 60 * 60 * 1000); 
             saveToFile();
-            await ctx.reply("⌛ пиши /card.");
+            await ctx.reply("⌛ пиши /card");
         } else {
             await ctx.reply("❌ херня якась");
         }
@@ -404,6 +504,11 @@ bot.action(/market_cat_(\d+)_(\w+)(?:_p(\d+))?/, async (ctx) => {
 
         if (!isOwner(ctx, userId)) return;
         
+        // Нормалізуємо категорію пошуку (наприклад netcards -> netcard, cases -> case)
+        let searchCat = cat;
+        if (cat === 'cases') searchCat = 'case';
+        if (cat === 'netcards') searchCat = 'netcard';
+
         const filtered = market.map((offer, idx) => ({ offer, idx })).filter(item => {
             if (cat === 'all') return true; 
             if (cat === 'pc') return item.offer.isPC === true; 
@@ -411,7 +516,8 @@ bot.action(/market_cat_(\d+)_(\w+)(?:_p(\d+))?/, async (ctx) => {
             
             let itemType = item.offer.item && item.offer.item.type;
             if (itemType === 'cases') itemType = 'case';
-            let searchCat = cat === 'cases' ? 'case' : cat;
+            if (itemType === 'netcards') itemType = 'netcard';
+
             return itemType === searchCat;
         });
 
@@ -425,8 +531,9 @@ bot.action(/market_cat_(\d+)_(\w+)(?:_p(\d+))?/, async (ctx) => {
 
         const buttons = pageItems.map(item => {
             const itemOffer = item.offer;
+            const icon = itemOffer.isPC ? '🖥' : (itemOffer.item?.type === 'netcard' ? '🌐' : '📦');
             return [Markup.button.callback(
-                `${itemOffer.isPC ? '🖥' : '📦'} ${itemOffer.item.model} — ${itemOffer.price}грн`, 
+                `${icon} ${itemOffer.item.model || itemOffer.item.name} — ${itemOffer.price}грн`, 
                 `market_buy_${itemOffer.offerId}`
             )];
         });
@@ -465,7 +572,7 @@ bot.action(/market_back_(\d+)/, async (ctx) => {
             [Markup.button.callback('♟ Процесори', `market_cat_${userId}_cpu`), Markup.button.callback('🖼 Відеокарти', `market_cat_${userId}_gpu`)],
             [Markup.button.callback('📟 Мамки', `market_cat_${userId}_motherboard`), Markup.button.callback('📟 ОЗУ', `market_cat_${userId}_ram`)],
             [Markup.button.callback('🗃 Диски', `market_cat_${userId}_storage`), Markup.button.callback('🔌 Блоки пітанія', `market_cat_${userId}_psu`)],
-            [Markup.button.callback('📦 Корпуси', `market_cat_${userId}_case`)],
+            [Markup.button.callback('📦 Корпуси', `market_cat_${userId}_case`), Markup.button.callback('🌐 Мережеві карти', `market_cat_${userId}_netcard`)],
             [Markup.button.callback('📜 Указати Усьо', `market_cat_${userId}_all`)]
         ]);
         
@@ -484,7 +591,7 @@ bot.action(/backinv_(\d+)/, async (ctx) => {
         
         const keyboard = Markup.inlineKeyboard([
             [Markup.button.callback('♟ Процесори', `invcat_${userId}_cpu`), Markup.button.callback('🖼 Відюхи', `invcat_${userId}_gpu`)],
-            [Markup.button.callback('📟 ОЗУ', `invcat_${userId}_ram`), Markup.button.callback('🗃 Диски', `invcat_${userId}_storage`)],
+            [Markup.button.callback('📟 ОЗУ', `invcat_${userId}_ram`), Markup.button.callback('🗃 Диски', `invcat_${userId}_storage`), Markup.button.callback('🌐 Мережеві карти', `invcat_${userId}_netcard`)],
             [Markup.button.callback('🔌 Блоки', `invcat_${userId}_psu`), Markup.button.callback('📟 Мамки', `invcat_${userId}_motherboard`), Markup.button.callback('📦 Корпуси', `invcat_${userId}_case`)],
             [Markup.button.callback('📜 Усьо', `invcat_${userId}_all`)]
         ]);
@@ -495,42 +602,39 @@ bot.action(/backinv_(\d+)/, async (ctx) => {
         await handleError(ctx, err, "backinv");
     }
 });
-
 bot.action(/shop_cat_(\w+)/, async (ctx) => {
     await ctx.sendChatAction('upload_photo');
     try {
         const cat = ctx.match[1];
-        let hardwareCat = cat;
-        if (cat === 'case' && !hardware.case && hardware.cases) hardwareCat = 'cases';
 
-        const items = hardware[hardwareCat];
+        // Мапимо назву категорії під ключ у hardware (netcard / netcards -> netcards)
+        let hardwareKey = cat;
+        if (cat === 'netcard' || cat === 'netcards') {
+            hardwareKey = 'netcards';
+        }
+
+        const items = hardware[hardwareKey] || [];
+
         if (!items || items.length === 0) {
             return ctx.answerCbQuery("❌ У сій категорії докіть нич ніє!", { show_alert: true });
         }
 
-        const firstItem = items[0];
-        let msg = `🛒 *Магазин | Товари у категорії ${cat.toUpperCase()}:*\n───────────────────\n`;
-        msg += `🔹 **${firstItem.model}**\n`;
-        if (firstItem.power) msg += ` ├ Потужність: ${firstItem.power} pts\n`;
-        if (firstItem.speed) msg += ` ├ Скорість: ${firstItem.speed} MB/s\n`;
-        if (firstItem.capacity) msg += ` ├ Об'єм пам'яті: ${firstItem.capacity}\n`;
-        msg += ` └ Коштує: *${firstItem.price} грн*\n\n⚙ Для перегляду та покупки тисни кнопки нижче:`;
+        const buttons = items.map(item => {
+            // Використовуємо item.name або item.model
+            const title = item.name || item.model;
+            return [Markup.button.callback(
+                `${title} — ${item.price} грн`, 
+                `buy_shop_${hardwareKey}_${item.id}`
+            )];
+        });
 
-        const keyboard = items.map((item, idx) => [
-            Markup.button.callback(`🛍 Купити ${item.model} (${item.price} грн)`, `buy_${cat}_${idx}`)
-        ]);
-        keyboard.push([Markup.button.callback('⬅️ Назад ся вернути', 'shop_main')]);
+        buttons.push([Markup.button.callback('⬅ Назад до категорій', 'shop_back')]);
 
-        try {
-            await ctx.deleteMessage().catch(()=>{});
-            await ctx.replyWithPhoto(firstItem.image || 'https://via.placeholder.com/300', {
-                caption: msg,
-                parse_mode: 'Markdown',
-                ...Markup.inlineKeyboard(keyboard)
-            });
-        } catch(e) {
-            await ctx.reply(msg, { parse_mode: 'Markdown', ...Markup.inlineKeyboard(keyboard) });
-        }
+        await ctx.editMessageCaption(`🛒 *Товари категорії: ${cat.toUpperCase()}*`, {
+            parse_mode: 'Markdown',
+            ...Markup.inlineKeyboard(buttons)
+        });
+
         await ctx.answerCbQuery().catch(() => {});
     } catch (err) {
         await handleError(ctx, err, "shop_cat");
@@ -760,18 +864,38 @@ bot.action(/newbuild_(\d+)/, async (ctx) => {
 
 bot.action(/test_build_(\d+)_(\d+)/, async (ctx) => {
     await ctx.sendChatAction('upload_photo');
+    let І = 0;
     try {
-        await ctx.answerCbQuery("Запуск тесту...").catch(() => {}); 
+        await ctx.answerCbQuery("загрузка...").catch(() => {}); 
         
         const userId = ctx.match[1];
         const bIdx = parseInt(ctx.match[2]);
         
         const player = players[userId];
         if (!player || !player.builds[bIdx]) {
-            return ctx.reply("❌ Збірка не знайдена!");
+            return ctx.reply("❌ ЕБАТЬ КОМП УТІК");
         }
 
         const build = player.builds[bIdx];
+        const comp = build.components || {};
+
+        // 🛑 ПЕРЕВІРКА НА ВІДСУТНІСТЬ ОС
+        if (!comp.os) {
+            const noOsMsg = `⚠️ ошибка\n\n` +
+                            `У тебе ниє ос на компі...\n` +
+                            `Комп робить, айбо пише шо загрущика ниє (просто ос нема та завто)\n\n` +
+                            `👉 зайди в зборку пк та установи якусь ос`;
+            
+            const noOsKb = Markup.inlineKeyboard([
+                [Markup.button.callback('⬅️ Назад до зборки', `back_to_build_${userId}_${bIdx}`)]
+            ]);
+
+            const isPhoto = ctx.callbackQuery.message && (ctx.callbackQuery.message.photo || ctx.callbackQuery.message.caption !== undefined);
+            return isPhoto 
+                ? ctx.editMessageCaption(noOsMsg, { parse_mode: 'Markdown', ...noOsKb })
+                : ctx.editMessageText(noOsMsg, { parse_mode: 'Markdown', ...noOsKb });
+        }
+
         const res = calculatePerformance(build);
         
         if (res.error) {
@@ -779,7 +903,7 @@ bot.action(/test_build_(\d+)_(\d+)/, async (ctx) => {
         }
 
         // Перевірка на вибух БЖ
-        const psu = build.components?.psu;
+        const psu = comp.psu;
         let psuRisk = 0;
         if (psu && psu.risk !== undefined) {
             psuRisk = parseFloat(psu.risk);
@@ -814,25 +938,90 @@ bot.action(/test_build_(\d+)_(\d+)/, async (ctx) => {
         // --- ОБРАХУНОК ОЦІНКИ WINDOWS 7 (1.0 - 7.9) ---
         const calcWin7Score = (val, maxVal) => Math.min(7.9, Math.max(1.0, parseFloat((1.0 + (val / maxVal) * 6.9).toFixed(1))));
 
-        const comp = build.components;
-        const cpuScore = calcWin7Score((comp.cpu?.cores || 1) * (comp.cpu?.power || 30), 400);
+        // 1. Процесор (оптимізовано максимум)
+        const cpuPowerVal = (comp.cpu?.cores || 1) * (comp.cpu?.power || 30);
+        const cpuScore = calcWin7Score(cpuPowerVal, 280); 
 
-        // Обчислення оцінки графіки (дискретна або вбудована)
+        // 2. Відеокарта
         let gpuScoreVal = 0;
         if (comp.gpu) {
             gpuScoreVal = (comp.gpu.power || 20) * (parseInt(comp.gpu.vram) || 2);
         } else if (comp.cpu && comp.cpu.igpu) {
-            gpuScoreVal = 15; // Мінімальна очікувана потужність для встройки
+            gpuScoreVal = 10;
         }
         const gpuScore = calcWin7Score(gpuScoreVal, 1000);
 
-        const ramScore = calcWin7Score(parseInt(comp.ram?.capacity) || 2, 32);
-        const storageScore = comp.storage?.type === 'HDD' ? calcWin7Score(comp.storage?.speed || 50, 200) : calcWin7Score(comp.storage?.speed || 500, 3500);
+        // 3. ОЗУ (парсинг байтів)
+        const rawBytes = parseRamBytes(comp.ram?.capacity);
+        const ramGb = rawBytes > 0 ? rawBytes / 1_000_000_000 : 2; 
+        const ramScore = calcWin7Score(ramGb, 16); 
+
+        // 4. Диск
+        const storageScore = comp.storage?.type === 'HDD' 
+            ? calcWin7Score(comp.storage?.speed || 50, 200) 
+            : calcWin7Score(comp.storage?.speed || 500, 3500);
 
         const baseIndex = Math.min(cpuScore, gpuScore, ramScore, storageScore).toFixed(1);
 
+        // --- ОБРАХУНОК МЕРЕЖІ ТА ШВИДКОСТІ ІНТЕРНЕТУ ---
+const netcard = comp.netcard;
+const hasInternet = !!netcard || !!(comp.motherboard && comp.motherboard.hasBuiltInLan);
+
+let netSpeedText = "0 Мбіт/с (Ниє інтернету)";
+let netSpeedMbps = 0;
+
+if (netcard) {
+    netSpeedMbps = netcard.speedMbps || 100;
+    if (netSpeedMbps >= 1000) {
+        netSpeedText = (netSpeedMbps / 1000).toFixed(1) + " Гб/с";
+    } else {
+        netSpeedText = netSpeedMbps + " Мб/с";
+    }
+} else if (comp.motherboard && comp.motherboard.hasBuiltInLan) {
+    netSpeedMbps = 1000;
+    netSpeedText = "1.0 Гб/с (у платі встроєний)";
+}
+
+// Позначка онлайн-ігор у списку
+const onlineGames = ['cs2', 'csgo', 'dota2', 'cs2_proton', 'cs16'];
+
+// --- ДИНАМІЧНА ЗБІРКА ІГОР З УРАХУВАННЯМ МЕРЕЖІ ---
+const osId = comp.os?.id;
+        let gameList = [];      
+        if (osId === 'win10_pro' || osId === 'win11_pro' || osId === 'win11_ltcs') {
+            const cs2Preset = (res.presets && res.presets.cs2) ? res.presets.cs2 : 'Низькі';
+            const ets2Preset = (res.presets && res.presets.ets2) ? res.presets.ets2 : 'Низькі';
+            const gta5Preset = (res.presets && res.presets.gta5) ? res.presets.gta5 : 'Низькі';
+            const cpPreset = (res.presets && res.presets.cyberpunk) ? res.presets.cyberpunk : 'Низькі';
+
+            gameList = [
+                { id: 'cs2', name: '🔫 CS 2 (' + cs2Preset + ')', fps: res.fps?.cs2 || 0, isOnline: true },
+                { id: 'ets2', name: '🚛 ETS 2 (' + ets2Preset + ')', fps: res.fps?.ets2 || 0, isOnline: false },
+                { id: 'gta5', name: '🏎 GTA 5 (' + gta5Preset + ')', fps: res.fps?.gta5 || 0, isOnline: false },
+                { id: 'cyberpunk', name: '🤖 Cyberpunk (' + cpPreset + ')', fps: res.fps?.cyberpunk || 0, isOnline: false }
+            ];
+        } else {
+            const cpuBasePower = (comp.cpu?.cores || 1) * (comp.cpu?.power || 30);
+            const gpuPower = comp.gpu ? (comp.gpu.power || 50) : 40;
+            const rawPower = (cpuBasePower * 0.8) + (gpuPower * 0.5);
+
+            const availableGames = (hardware.games || []).filter(g => g.os === osId);
+
+            gameList = availableGames.map(g => {
+                let calculatedFps = g.fixedFps !== undefined ? g.fixedFps : Math.round(rawPower * g.coeff);
+                return {
+                    id: g.id,
+                    name: `${g.icon || '🎮'} ${g.name}`,
+                    fps: calculatedFps,
+                    isOnline: !!g.isOnline
+                };
+            });
+        }
+
         // --- АНАЛІЗ БОТЛНЕКІВ ТА ПОРАДИ ---
         let tips = [];
+
+        // Перевірка ботлнеку GPU / CPU
         if (cpuScore - gpuScore >= 2.0) {
             if (!comp.gpu && comp.cpu?.igpu) {
                 tips.push("⚠️ сидиш на встройці, для ігор треба нормальну відюху");
@@ -843,43 +1032,58 @@ bot.action(/test_build_(\d+)_(\d+)/, async (ctx) => {
             tips.push("⚠️ процесор в сотку ся б'є, купи покруче проц");
         }
 
-        if (comp.storage?.type === 'HDD' || (comp.storage?.speed && comp.storage.speed < 200)) {
-            tips.push("🐌 сука віндовс 10/11 на хдд ставити, тупий");
+        // Перевірка повільного диска/HDD на основі hdd_good
+        const isSlowStorage = comp.storage?.type === 'HDD' || (comp.storage?.speed && comp.storage.speed < 200);
+        if (isSlowStorage && comp.os && !comp.os.hdd_good) {
+            tips.push(`🐌 сука ${comp.os.model} на хдд ставити, тупий`);
         }
 
-        if (parseInt(comp.ram?.capacity) <= 4) {
-            tips.push("📉 4гб озу доста мало у нашому 2026 році, хром уже половину ізість, купи більше озу");
+        // Перевірка ОЗУ
+        const ramCapacityRaw = comp.ram?.capacity || "0GB";
+        const playerRamBytes = parseRamBytes(ramCapacityRaw);
+        const requiredRamBytes = (comp.os?.ramReq || 0) * 1_000_000_000;
+
+        if (playerRamBytes < requiredRamBytes) {
+            tips.push(`📉 ${ramCapacityRaw} озу доста мало для ${comp.os.model}, купи більше озу або поклади май оптимізовану ос`);
         }
 
+        // Перевірка БЖ
         if (comp.psu && res.consumption && comp.psu.wattage < res.consumption + 50) {
             tips.push("⚡ акуратно, твому бж мало хуйово, поклади нормальний");
         }
 
+        // Якщо зауважень немає
         if (tips.length === 0) {
             tips.push("✅ чотко! Усьо збалансовано, ботлнеків ниє.");
         }
-       
+        
         // --- ФОРМУВАННЯ ПОВІДОМЛЕННЯ ---
-        let msg = ` *Індекс продуктивності Windows "${build.name}":*\n`;
-        msg += `───────────────────\n`;
+        let msg = ` *Індекс продуктивності "${build.name}":*\n`;
+        msg += `💿 ОС: *${comp.os.model}*\n`;
+        msg += `-------------------------\n`;
         msg += `🔲 Процесор: *${cpuScore}*\n`;
         msg += `📟 Пам'ять (RAM): *${ramScore}*\n`;
         msg += `🎮 Графіка: *${gpuScore}*\n`;
         msg += `💾 основний диск: *${storageScore}*\n`;
-        msg += `───────────────────\n`;
-        msg += `💻 **Основна оцінка:** *${baseIndex}* (визначається найнижчою)\n\n`;
+        msg += `-------------------------\n`;
+        msg += `💻 **Основна оцінка:** *${baseIndex}* (убираться найнижчов)\n\n`;
 
-        msg += `🎮 *Тест у бавках:*\n`;
-        msg += ` ├ 🔫 CS 2 (${res.presets.cs2}): *${res.fps.cs2 > 0 ? res.fps.cs2 + ' FPS' : '❌'}*\n`;
-        msg += ` ├ 🚛 ETS 2 (${res.presets.ets2}): *${res.fps.ets2 > 0 ? res.fps.ets2 + ' FPS' : '❌'}*\n`;
-        msg += ` ├ 🚗 GTA 5 (${res.presets.gta5}): *${res.fps.gta5 > 0 ? res.fps.gta5 + ' FPS' : '❌'}*\n`;
-        msg += ` └ 🦾 Cyberpunk (${res.presets.cyberpunk}): *${res.fps.cyberpunk > 0 ? res.fps.cyberpunk + ' FPS' : '❌'}*\n\n`;
+        msg += `🎮 *Тест у бавках (${comp.os.model}):*\n`;
+        if (gameList.length > 0) {
+            gameList.forEach(g => {
+                const fpsText = g.fps > 0 ? `${g.fps} FPS` : '❌ Не піде';
+                msg += ` | ${g.name}: *${fpsText}*\n`;
+            });
+        } else {
+            msg += ` - ❌ для ісій ос ниє ігор в боті, проси адміна би добавив\n`;
+        }
+        msg += `\n`;
 
         msg += `💡 нюанс твоєї збірки: \n${tips.join('\n')}\n\n`;
         msg += `🌡 Температура: *${res.temp || '??'}°C* | ⚡ Їсть: *${res.consumption || 0} W*`;
 
         const kb = Markup.inlineKeyboard([
-            [Markup.button.callback('⬅️ Назад до зборки', `back_to_build_${userId}_${bIdx}`)]
+            [Markup.button.callback('⬅️ Назад до зборки', `backlist_${userId}_${bIdx}`)]
         ]);
 
         const isPhoto = ctx.callbackQuery.message && (ctx.callbackQuery.message.photo || ctx.callbackQuery.message.caption !== undefined);
@@ -893,19 +1097,6 @@ bot.action(/test_build_(\d+)_(\d+)/, async (ctx) => {
         await handleError(ctx, err, "test_build");
     }
 });
-
-bot.action(/back_to_build_(\d+)_(\d+)/, async (ctx) => {
-    await ctx.sendChatAction('upload_photo');
-    try {
-        const userId = parseInt(ctx.match[1]);
-        const buildIdx = parseInt(ctx.match[2]);
-        await showBuildMenu(ctx, userId, buildIdx);
-        await ctx.answerCbQuery().catch(() => {});
-    } catch (err) {
-        await handleError(ctx, err, "back_to_build");
-    }
-});
-
 bot.action(/backlist_(\d+)/, async (ctx) => {
     await ctx.sendChatAction('upload_photo');
     try {
@@ -942,13 +1133,23 @@ bot.action(/mod_(\d+)_(\d+)_list/, async (ctx) => {
 
         const cpu = build.components.cpu;
         const gpu = build.components.gpu;
+        const os = build.components.os;
+        const netcard = build.components.netcards || build.components.netcard;
+        const motherboard = build.components.motherboard;
 
         // Формуємо текст для відеокарти
         let gpuText = "🚫";
         if (gpu) {
             gpuText = gpu.model;
         } else if (cpu && cpu.igpu) {
-            gpuText = `Вбудована (${cpu.igpu})`;
+            gpuText = `${cpu.igpu}`;
+        }
+
+        let netText = "🚫";
+        if (netcard) {
+            netText = netcard.model || netcard.name;
+        } else if (motherboard && motherboard.hasBuiltInLan) {
+            netText = "🔌 Вбудований LAN";
         }
 
         let desc = `🖥 *ПК: "${build.name}"*\n`;
@@ -956,9 +1157,11 @@ bot.action(/mod_(\d+)_(\d+)_list/, async (ctx) => {
         desc += `🔳 Процесор: ${cpu ? cpu.model : "🚫"}\n`;
         desc += `🖼 Відеокарта: ${gpuText}\n`;
         desc += `📟 ОЗУ: ${build.components.ram ? build.components.ram.model : "🚫"}\n`;
-        desc += `🎛 мамка: ${build.components.motherboard ? build.components.motherboard.model : "🚫"}\n`;
-        desc += `🔌 Блок живлення: ${build.components.psu ? build.components.psu.model : "🚫"}\n`;
+        desc += `🎛 Мамка: ${build.components.motherboard ? build.components.motherboard.model : "🚫"}\n`;
+        desc += `🔌 Бж: ${build.components.psu ? build.components.psu.model : "🚫"}\n`;
         desc += `💾 SSD/HDD: ${build.components.storage ? build.components.storage.model : "🚫"}\n`;
+        desc += `🌐 Інтернет: ${netText}\n`;
+        desc += `💿 ОС: ${os ? os.model : "🚫"}\n`;
         desc += `───────────────────\n\n`;
         desc += `🛠 *Шо хоч поміняти?*`;
 
@@ -969,7 +1172,9 @@ bot.action(/mod_(\d+)_(\d+)_list/, async (ctx) => {
             [Markup.button.callback('💾 Диск', `mod_${userId}_${bIdx}_storage`)],
             [Markup.button.callback('🔌 Блок живлення', `mod_${userId}_${bIdx}_psu`)],
             [Markup.button.callback('📦 Корпус', `mod_${userId}_${bIdx}_case`)],
-            [Markup.button.callback('🎛 мамка', `mod_${userId}_${bIdx}_motherboard`)],
+            [Markup.button.callback('🎛 Мамка', `mod_${userId}_${bIdx}_motherboard`)],
+            [Markup.button.callback('💿 ОС установити', `mod_${userId}_${bIdx}_os`)],
+            [Markup.button.callback('🌐 Мережева карта', `mod_${userId}_${bIdx}_netcard`)],
             [Markup.button.callback('⬅ Назад до ПК', `back_to_build_${userId}_${bIdx}`)]
         ]);
 
@@ -984,7 +1189,7 @@ bot.action(/mod_(\d+)_(\d+)_list/, async (ctx) => {
     }
 });
 
-bot.action(/mod_(\d+)_(\d+)_(cpu|gpu|ram|storage|psu|case|motherboard)/, async (ctx) => {
+bot.action(/mod_(\d+)_(\d+)_(cpu|gpu|ram|storage|psu|case|motherboard|netcard|os)/, async (ctx) => {
     await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.match[1];
@@ -993,30 +1198,44 @@ bot.action(/mod_(\d+)_(\d+)_(cpu|gpu|ram|storage|psu|case|motherboard)/, async (
 
         const player = players[userId];
         const build = player.builds[bIdx];
+        let buttons = [];
+
+        if (type === 'os') {
+            buttons = hardware.os.map((item) => {
+                return [Markup.button.callback(`💿 ${item.model}`, `set_${userId}_${bIdx}_os_${item.id}`)];
+            });
+        } else {
+            // Логіка для звичайних деталей з інвентарю (враховуючи різницю netcard / netcards)
+            const items = player.inventory.filter(item => {
+                let itemType = item.type;
+                if (itemType === 'netcards') itemType = 'netcard';
+                if (itemType !== type) return false;
+
+                const testBuild = JSON.parse(JSON.stringify(build));
+                if (!testBuild.components) testBuild.components = {};
+                
+                testBuild.components[type] = item;
+                const check = canInstallComponent(testBuild, item);
+                return check.can !== false;
+            });
+
+            if (items.length === 0) {
+                return ctx.answerCbQuery(`❌ нема пудходящих ${type} у інвентарі!`, { show_alert: true });
+            }
+
+            buttons = items.map((item) => {
+                const invIdx = player.inventory.findIndex(i => i === item);
+                const icon = type === 'netcard' ? '🌐' : '📦';
+                return [Markup.button.callback(`${icon} ${item.model || item.name}`, `set_${userId}_${bIdx}_${type}_${invIdx}`)];
+            });
+        }
+
+        // Кнопка "Зняти/Видалити"
+        if (build.components && build.components[type]) {
+            const removeText = type === 'os' ? '🗑️ форматнути диск' : '❌ уйняти';
+            buttons.unshift([Markup.button.callback(removeText, `remove_${userId}_${bIdx}_${type}`)]);
+        }
         
-        const items = player.inventory.filter(item => {
-            if (item.type !== type) return false;
-
-            const testBuild = JSON.parse(JSON.stringify(build));
-            if (!testBuild.components) testBuild.components = {};
-            
-            testBuild.components[type] = item;
-            const check = canInstallComponent(testBuild, item);
-            return check.can !== false;
-        });
-
-        if (items.length === 0) {
-            return ctx.answerCbQuery(`❌ нема пудходящих ${type} у інвентарі!`, { show_alert: true });
-        }
-
-        const buttons = items.map((item, index) => {
-            const invIdx = player.inventory.findIndex(i => i === item);
-            return [Markup.button.callback(` ${item.model}`, `set_${userId}_${bIdx}_${type}_${invIdx}`)];
-        });
-
-        if (build.components[type]) {
-            buttons.unshift([Markup.button.callback('❌ уняти', `remove_${userId}_${bIdx}_${type}`)]);
-        }
         buttons.push([Markup.button.callback('⬅️ Назад', `mod_${userId}_${bIdx}_list`)]);
 
         await ctx.editMessageCaption(`🛠 *убери шо хоч покласти із ${type} у сись комп*`, {
@@ -1030,7 +1249,7 @@ bot.action(/mod_(\d+)_(\d+)_(cpu|gpu|ram|storage|psu|case|motherboard)/, async (
     }
 });
 
-bot.action(/remove_(\d+)_(\d+)_(cpu|gpu|ram|storage|psu|case|motherboard)/, async (ctx) => {
+bot.action(/remove_(\d+)_(\d+)_(cpu|gpu|ram|storage|psu|case|motherboard|netcard|os)/, async (ctx) => {
     await ctx.sendChatAction('upload_photo');
     try {
         const userId = ctx.match[1];
@@ -1040,14 +1259,18 @@ bot.action(/remove_(\d+)_(\d+)_(cpu|gpu|ram|storage|psu|case|motherboard)/, asyn
         const player = players[userId];
         const build = player.builds[bIdx];
 
-        if (build.components[type]) {
-            player.inventory.push(build.components[type]);
+        if (build.components && build.components[type]) {
+            if (type !== 'os') {
+                player.inventory.push(build.components[type]);
+            }
+            
             delete build.components[type];
             saveToFile();
             
-            await ctx.answerCbQuery("✅ Деталь вийнято!", { show_alert: false });
+            const alertText = type === 'os' ? "✅ диск формтануто!" : "✅ деталь уйнято!";
+            await ctx.answerCbQuery(alertText, { show_alert: false });
         } else {
-            await ctx.answerCbQuery("❌ Тут пусто.", { show_alert: true });
+            await ctx.answerCbQuery("❌ Туй пусто", { show_alert: true });
         }
 
         await showBuildMenu(ctx, userId, bIdx);
@@ -1056,29 +1279,50 @@ bot.action(/remove_(\d+)_(\d+)_(cpu|gpu|ram|storage|psu|case|motherboard)/, asyn
     }
 });
 
-bot.action(/set_(\d+)_(\d+)_(\w+)_(\d+)/, async (ctx) => {
+bot.action(/^set_(\d+)_(\d+)_([^_]+)_(.+)$/, async (ctx) => {
     await ctx.sendChatAction('upload_photo');
     try {
-        const [_, userIdStr, bIdxStr, type, invIdxStr] = ctx.match;
-        const userId = parseInt(userIdStr);
-        const bIdx = parseInt(bIdxStr);
-        const invIdx = parseInt(invIdxStr);
+        const userId = parseInt(ctx.match[1]);
+        const bIdx = parseInt(ctx.match[2]);
+        const type = ctx.match[3];
+        const itemKey = ctx.match[4];
 
         if (!isOwner(ctx, userId)) return ctx.answerCbQuery("❌ уто не твій комп!", { show_alert: true });
 
         const player = players[userId];
         const build = player?.builds?.[bIdx];
+        if (!build) return;
+
+        if (!build.components) build.components = {};
+
+        // Окрема логіка для ОС
+        if (type === 'os') {
+            const selectedOs = hardware.os.find(o => o.id === itemKey);
+            if (!selectedOs) return ctx.answerCbQuery("❌ ОС ниє!", { show_alert: true });
+
+            if (build.components.ram && build.components.ram.ram < selectedOs.ramReq) {
+                return ctx.answerCbQuery(`❌ Не хватає ОЗУ! треба мінімум ${selectedOs.ramReq} ГБ`, { show_alert: true });
+            }
+
+            build.components.os = { ...selectedOs };
+            saveToFile();
+
+            await ctx.answerCbQuery(`✅ ти установив ${selectedOs.model}!\nхороший вибір!`);
+            return showBuildMenu(ctx, userId, bIdx);
+        }
+
+        // Логіка для звичайних деталей з інвентарю
+        const invIdx = parseInt(itemKey);
         const newItem = player?.inventory?.[invIdx];
 
         if (!newItem) return ctx.answerCbQuery("❌ Деталі ниє!", { show_alert: true });
 
         const check = canInstallComponent(build, newItem);
         if (!check.can) {
-            return ctx.answerCbQuery(check.reason || "❌ся деталь не кладеться у твій комп", { show_alert: true });
+            return ctx.answerCbQuery(check.reason || "❌ ся деталь не кладеться у твій комп", { show_alert: true });
         }
 
-        if (!build.components) build.components = {};
-
+        // Повертаємо стару деталь в інвентар (якщо вона була)
         if (build.components[type] && build.components[type].model) {
             player.inventory.push(build.components[type]);
         }
@@ -1087,14 +1331,13 @@ bot.action(/set_(\d+)_(\d+)_(\w+)_(\d+)/, async (ctx) => {
         player.inventory.splice(invIdx, 1);
 
         saveToFile();
-        await ctx.answerCbQuery(`✅ т поклав ${newItem.model}`);
+        await ctx.answerCbQuery(`✅ ти поклав ${newItem.model || newItem.name}`);
         
         return showBuildMenu(ctx, userId, bIdx);
     } catch (err) {
         await handleError(ctx, err, "set");
     }
 });
-
 bot.action(/unmount_(\d+)_(\d+)_(\w+)/, async (ctx) => {
     await ctx.sendChatAction('upload_photo');
     try {
@@ -1186,12 +1429,13 @@ bot.on('text', async (ctx) => {
 });
 
 bot.telegram.setMyCommands([
-    { command: 'card', description: 'Получити карту' },
+    { command: 'card', description: 'Отримати деталь' },
     { command: 'inventory', description: 'Склад' },
-    { command: 'build', description: 'Зборка пк' },
+    { command: 'service', description: 'Ремонт' },
+    { command: 'build', description: 'Зборка ПК' },
     { command: 'shop', description: 'Магазин' },
     { command: 'market', description: 'ОЛХ' },
-    { command: 'reset', description: 'Скинути таймер' },
+    { command: 'reset', description: 'Скинути таймер (адмін)' }
 ]).then(() => console.log('📜 Меню швидких команд успішно оновлено!'));
 
 bot.launch().then(() => console.log('🤖 Бот успішно запущений та готовий збирати залізо!'));
